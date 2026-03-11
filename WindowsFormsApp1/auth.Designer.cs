@@ -73,7 +73,6 @@
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.Size = new System.Drawing.Size(237, 29);
             this.txtPassword.TabIndex = 1;
-            this.txtPassword.Text = "ss";
             // 
             // txtLogin
             // 
