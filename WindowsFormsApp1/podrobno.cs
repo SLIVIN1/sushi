@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    public partial class podrobno : Form
+    public partial class podrobno : BaseForm
     {
         private long orderId;
 

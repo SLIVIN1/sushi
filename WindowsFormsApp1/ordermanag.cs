@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    public partial class ordermanag : Form
+    public partial class ordermanag : BaseForm
     {
         private DataTable menuTable;
         private DataTable cartTable;

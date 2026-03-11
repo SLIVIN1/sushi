@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    public partial class productmanag : Form
+    public partial class productmanag : BaseForm
     {
         private DataTable productsTable;
         private DataTable filteredTable; // Для хранения отфильтрованных данных

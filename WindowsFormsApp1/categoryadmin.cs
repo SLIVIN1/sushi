@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    public partial class categoryadmin : Form
+    public partial class categoryadmin : BaseForm
     {
         private int currentCategoryId = 0;
 

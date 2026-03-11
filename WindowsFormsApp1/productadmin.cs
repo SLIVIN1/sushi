@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    public partial class productadmin : Form
+    public partial class productadmin : BaseForm
     {
         private DataTable productsTable;
         private DataTable filteredTable; // Для хранения отфильтрованных данных

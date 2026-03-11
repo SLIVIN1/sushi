@@ -7,7 +7,7 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace WindowsFormsApp1
 {
-    public partial class director : Form
+    public partial class director : BaseForm
     {
         DataTable ordersTable = new DataTable();
         private bool allowClose = false;

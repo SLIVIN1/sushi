@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    public partial class useradmin : Form
+    public partial class useradmin : BaseForm
     {
 
         private int currentUserId = 0;
