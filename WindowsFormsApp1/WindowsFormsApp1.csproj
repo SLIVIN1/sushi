@@ -208,6 +208,9 @@
     <EmbeddedResource Include="auth.resx">
       <DependentUpon>auth.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Class5.resx">
+      <DependentUpon>Class5.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="discount.resx">
       <DependentUpon>discount.cs</DependentUpon>
     </EmbeddedResource>

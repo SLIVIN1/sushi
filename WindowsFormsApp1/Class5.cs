@@ -10,62 +10,60 @@ namespace WindowsFormsApp1
         private int timeoutSeconds;
         private bool enabled;
         private bool isLocked = false;
+        private Form notificationForm = null;
 
         public BaseForm()
         {
-            // Получаем настройки из App.config
             timeoutSeconds = AppConfigSettings.InactivityTimeoutSeconds;
             enabled = AppConfigSettings.EnableInactivityLock;
 
+            // Устанавливаем форму по центру экрана
+            this.StartPosition = FormStartPosition.CenterScreen;
+
             if (enabled)
             {
-                InitializeTimer();
-                SubscribeToEvents();
-            }
+                activityTimer = new Timer();
+                activityTimer.Interval = 1000;
+                activityTimer.Tick += CheckInactivity;
 
-            this.Load += BaseForm_Load;
-            this.FormClosed += BaseForm_FormClosed;
-        }
+                this.MouseMove += (s, e) => ResetTimer();
+                this.KeyPress += (s, e) => ResetTimer();
+                this.MouseClick += (s, e) => ResetTimer();
+                this.KeyDown += (s, e) => ResetTimer();
 
-        private void InitializeTimer()
-        {
-            activityTimer = new Timer();
-            activityTimer.Interval = 1000; // Проверка каждую секунду
-            activityTimer.Tick += CheckInactivity;
-        }
-
-        private void SubscribeToEvents()
-        {
-            // Подписываемся на события мыши и клавиатуры для всей формы
-            this.MouseMove += OnUserActivity;
-            this.KeyPress += OnUserActivity;
-            this.MouseClick += OnUserActivity;
-            this.KeyDown += OnUserActivity;
-
-            // Подписываемся на события всех контролов
-            SubscribeControls(this);
-        }
-
-        private void SubscribeControls(Control parent)
-        {
-            foreach (Control control in parent.Controls)
-            {
-                control.MouseMove += OnUserActivity;
-                control.KeyPress += OnUserActivity;
-                control.MouseClick += OnUserActivity;
-                control.KeyDown += OnUserActivity;
-
-                // Рекурсивно подписываемся на дочерние контролы
-                if (control.HasChildren)
+                this.Load += (s, e) =>
                 {
-                    SubscribeControls(control);
-                }
+                    lastActivityTime = DateTime.Now;
+                    activityTimer.Start();
+                };
+
+                this.FormClosed += (s, e) =>
+                {
+                    activityTimer?.Stop();
+                    activityTimer?.Dispose();
+                    CloseNotification();
+                };
             }
         }
 
-        private void OnUserActivity(object sender, EventArgs e)
+        private void ResetTimer()
         {
             lastActivityTime = DateTime.Now;
+            CloseNotification();
+        }
+
+        private void CloseNotification()
+        {
+            if (notificationForm != null && !notificationForm.IsDisposed)
+            {
+                try
+                {
+                    notificationForm.Close();
+                    notificationForm.Dispose();
+                }
+                catch { }
+                notificationForm = null;
+            }
         }
 
         private void CheckInactivity(object sender, EventArgs e)
@@ -74,76 +72,125 @@ namespace WindowsFormsApp1
 
             TimeSpan inactiveTime = DateTime.Now - lastActivityTime;
 
+            if (inactiveTime.TotalSeconds >= timeoutSeconds - 5 &&
+                inactiveTime.TotalSeconds < timeoutSeconds &&
+                notificationForm == null)
+            {
+                ShowWarning();
+            }
+
             if (inactiveTime.TotalSeconds >= timeoutSeconds)
             {
-                ShowLoginForm();
+                this.Invoke(new Action(() => {
+                    ShowLoginForm();
+                }));
             }
+        }
+
+        private void ShowWarning()
+        {
+            if (notificationForm != null) return;
+
+            notificationForm = new Form
+            {
+                Text = "Предупреждение",
+                Size = new System.Drawing.Size(300, 150),
+                StartPosition = FormStartPosition.CenterParent, // По центру родительской формы
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                MaximizeBox = false,
+                MinimizeBox = false,
+                TopMost = true,
+                ControlBox = false
+            };
+
+            Label lblMessage = new Label
+            {
+                Text = "⚠ Внимание!\n\nЧерез 5 секунд произойдет автоматический выход\nиз-за длительного бездействия.",
+                TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
+                Size = new System.Drawing.Size(280, 80),
+                Location = new System.Drawing.Point(10, 10)
+            };
+
+            Button btnOk = new Button
+            {
+                Text = "Продолжить работу",
+                Size = new System.Drawing.Size(150, 30),
+                Location = new System.Drawing.Point(75, 80)
+            };
+            btnOk.Click += (s, args) => {
+                lastActivityTime = DateTime.Now;
+                CloseNotification();
+            };
+
+            notificationForm.Controls.Add(lblMessage);
+            notificationForm.Controls.Add(btnOk);
+            notificationForm.Show();
         }
 
         protected virtual void ShowLoginForm()
         {
-            // Останавливаем таймер
             activityTimer.Stop();
             isLocked = true;
+            CloseNotification();
 
-            // Создаем и показываем форму авторизации
+            MessageBox.Show(
+                "Вы были возвращены на экран регистрации из-за длительного бездействия.",
+                "Информация",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+
+            // ИСПРАВЛЕНО: Было new A(), теперь new LoginForm()
             using (var loginForm = new A())
             {
-                // Сохраняем состояние видимости
                 bool wasVisible = this.Visible;
-
-                // Скрываем текущую форму
                 this.Hide();
 
-                // Показываем форму авторизации
-                var result = loginForm.ShowDialog();
-
-                if (result == DialogResult.OK)
+                if (loginForm.ShowDialog() == DialogResult.OK)
                 {
-                    // Успешная авторизация
                     isLocked = false;
                     lastActivityTime = DateTime.Now;
 
-                    // Показываем форму обратно
                     if (wasVisible)
                     {
                         this.Show();
+                        MessageBox.Show("Добро пожаловать обратно!", "Успешно",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
 
-                    // Запускаем таймер заново
                     activityTimer.Start();
                 }
                 else
                 {
-                    // Если пользователь закрыл форму авторизации без входа
                     Application.Exit();
                 }
             }
         }
 
-        private void BaseForm_Load(object sender, EventArgs e)
-        {
-            if (enabled)
-            {
-                lastActivityTime = DateTime.Now;
-                activityTimer.Start();
-            }
-        }
-
-        private void BaseForm_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            activityTimer?.Stop();
-            activityTimer?.Dispose();
-        }
-
-        // Метод для обновления таймаута (можно вызвать из любой формы)
         public void UpdateInactivityTimeout(int newTimeout)
         {
             timeoutSeconds = newTimeout;
             AppConfigSettings.UpdateInactivityTimeout(newTimeout);
         }
 
-        // Свойство для проверки статуса
         public bool IsLocked => isLocked;
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // BaseForm
+            // 
+            this.ClientSize = new System.Drawing.Size(284, 261);
+            this.Name = "BaseForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Load += new System.EventHandler(this.BaseForm_Load);
+            this.ResumeLayout(false);
+
+        }
+
+        private void BaseForm_Load(object sender, EventArgs e)
+        {
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+        }
     }
 }

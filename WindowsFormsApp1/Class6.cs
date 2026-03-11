@@ -5,7 +5,6 @@ namespace WindowsFormsApp1
 {
     public static class AppConfigSettings
     {
-        // Чтение времени бездействия из App.config
         public static int InactivityTimeoutSeconds
         {
             get
@@ -15,11 +14,10 @@ namespace WindowsFormsApp1
                 {
                     return timeout;
                 }
-                return 30; // значение по умолчанию
+                return 30;
             }
         }
 
-        // Проверка, включена ли блокировка
         public static bool EnableInactivityLock
         {
             get
@@ -29,11 +27,10 @@ namespace WindowsFormsApp1
                 {
                     return enabled;
                 }
-                return true; // по умолчанию включено
+                return true;
             }
         }
 
-        // Метод для обновления настроек (если нужно менять во время работы)
         public static void UpdateInactivityTimeout(int newTimeout)
         {
             var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
