@@ -44,7 +44,7 @@ namespace WindowsFormsApp1
             this.labelPageInfo = new System.Windows.Forms.Label();
             this.buttonNext = new System.Windows.Forms.Button();
             this.buttonPrev = new System.Windows.Forms.Button();
-            this.label5 = new System.Windows.Forms.Label();
+            this.labelPage = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -188,14 +188,14 @@ namespace WindowsFormsApp1
             this.buttonPrev.Text = "←";
             this.buttonPrev.UseVisualStyleBackColor = true;
             // 
-            // label5
+            // labelPage
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(15, 314);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(35, 13);
-            this.label5.TabIndex = 40;
-            this.label5.Text = "label7";
+            this.labelPage.AutoSize = true;
+            this.labelPage.Location = new System.Drawing.Point(15, 314);
+            this.labelPage.Name = "labelPage";
+            this.labelPage.Size = new System.Drawing.Size(35, 13);
+            this.labelPage.TabIndex = 40;
+            this.labelPage.Text = "label7";
             // 
             // productmanag
             // 
@@ -203,7 +203,7 @@ namespace WindowsFormsApp1
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(244)))), ((int)(((byte)(245)))));
             this.ClientSize = new System.Drawing.Size(540, 450);
-            this.Controls.Add(this.label5);
+            this.Controls.Add(this.labelPage);
             this.Controls.Add(this.flowLayoutPanelPages);
             this.Controls.Add(this.labelPageInfo);
             this.Controls.Add(this.buttonNext);
@@ -248,6 +248,6 @@ namespace WindowsFormsApp1
         private System.Windows.Forms.Label labelPageInfo;
         private System.Windows.Forms.Button buttonNext;
         private System.Windows.Forms.Button buttonPrev;
-        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label labelPage;
     }
 }

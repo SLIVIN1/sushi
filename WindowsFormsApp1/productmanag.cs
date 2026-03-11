@@ -380,8 +380,8 @@ namespace WindowsFormsApp1
 
             // Обновляем информацию о записях
             int displayedRecords = pageTable.Rows.Count;
-            if (labelPageInfo != null)
-                labelPageInfo.Text = $"{displayedRecords} из {totalRecords}";
+            if (labelPage != null)
+                labelPage.Text = $"{displayedRecords} из {totalRecords}";
 
             // Обновляем кнопки пагинации
             UpdatePaginationControls();
