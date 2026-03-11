@@ -1,5 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
@@ -11,13 +12,27 @@ namespace WindowsFormsApp1
     public partial class productadmin : Form
     {
         private DataTable productsTable;
+        private DataTable filteredTable; // Для хранения отфильтрованных данных
         private string appFolderPath;
         private int currentProductId = 0;
-        private string currentImagePath = ""; 
+        private string currentImagePath = "";
+
+        // Поля для пагинации
+        private int currentPage = 1;
+        private int pageSize = 20;
+        private int totalRecords = 0;
+        private int totalPages = 1;
+        private string currentFilter = "";
+        private string currentSortColumn = "";
+        private bool sortAscending = true;
 
         public productadmin()
         {
             InitializeComponent();
+
+            // Инициализация пагинации
+            InitializePagination();
+
             textBox1.KeyPress += textBox1_KeyPress;
             textBox1.TextChanged += textBox1_TextChanged;
             textBox4.KeyPress += textBox4_KeyPress;
@@ -25,20 +40,60 @@ namespace WindowsFormsApp1
             this.Activated += productadmin_Activated;
             dataGridView1.DefaultCellStyle.SelectionBackColor = ColorTranslator.FromHtml("#B3D9FF");
             textBox3.TextChanged += textBox3_TextChanged;
+
             appFolderPath = Path.Combine(Application.StartupPath, "ProductImages");
             if (!Directory.Exists(appFolderPath))
             {
                 Directory.CreateDirectory(appFolderPath);
             }
+
             dataGridView1.DataBindingComplete += dataGridView1_DataBindingComplete;
             dataGridView1.CellClick += dataGridView1_CellClick;
+            dataGridView1.ColumnHeaderMouseClick += DataGridView1_ColumnHeaderMouseClick; // Для сортировки
             dataGridView1.DataBindingComplete += (sender, e) =>
             {
                 LoadImagesToGrid();
             };
 
-            LoadData();
             LoadCategories();
+            LoadData(); // Загружаем все данные
+        }
+
+        private void InitializePagination()
+        {
+           
+
+            // Подписка на события кнопок
+            if (buttonPrev != null)
+                buttonPrev.Click += ButtonPrev_Click;
+
+            if (buttonNext != null)
+                buttonNext.Click += ButtonNext_Click;
+        }
+
+        // Обработчик сортировки по колонкам
+        private void DataGridView1_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            string columnName = dataGridView1.Columns[e.ColumnIndex].Name;
+
+            // Исключаем колонки, по которым не нужно сортировать
+            if (columnName == "image_col" || columnName == "id" || columnName == "image_path" ||
+                columnName == "is_deleted" || columnName == "category_deleted")
+                return;
+
+            // Определяем направление сортировки
+            if (currentSortColumn == columnName)
+            {
+                sortAscending = !sortAscending;
+            }
+            else
+            {
+                currentSortColumn = columnName;
+                sortAscending = true;
+            }
+
+            // Обновляем данные с сортировкой
+            ApplyFilterAndSort();
         }
 
         private void productadmin_Activated(object sender, EventArgs e)
@@ -46,12 +101,17 @@ namespace WindowsFormsApp1
             dataGridView1.ClearSelection();
         }
 
-        // Добавляем флаг is_deleted в загрузку данных
+        // Загрузка всех данных с учетом фильтрации и сортировки
         private void LoadData()
         {
             try
             {
-                string query = "SELECT p.id, p.article, p.name, p.description, p.price, c.name AS category_name, c.is_deleted AS category_deleted, p.image_path, p.is_deleted FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.is_deleted = 0"; // Показываем только неудаленные товары
+                string query = @"SELECT p.id, p.article, p.name, p.description, p.price, 
+                                c.name AS category_name, c.is_deleted AS category_deleted, 
+                                p.image_path, p.is_deleted 
+                                FROM products p 
+                                LEFT JOIN categories c ON p.category_id = c.id 
+                                WHERE p.is_deleted = 0";
 
                 using (MySqlConnection connection = DbConfig.GetConnection())
                 {
@@ -59,13 +119,233 @@ namespace WindowsFormsApp1
                     productsTable = new DataTable();
                     da.Fill(productsTable);
 
-                    dataGridView1.DataSource = productsTable;
-                    SetupGridColumns();
+                    // Подсчет общего количества записей
+                    totalRecords = productsTable.Rows.Count;
+
+                    // Применяем фильтрацию и сортировку
+                    ApplyFilterAndSort();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка: " + ex.Message);
+                MessageBox.Show("Ошибка загрузки данных: " + ex.Message);
+            }
+        }
+
+        // Применение фильтрации и сортировки
+        private void ApplyFilterAndSort()
+        {
+            if (productsTable == null) return;
+
+            // Создаем копию для фильтрации
+            DataView view = new DataView(productsTable);
+
+            // Применяем фильтр по поиску
+            if (!string.IsNullOrWhiteSpace(currentFilter))
+            {
+                string filterExpression = string.Format("article LIKE '%{0}%' OR name LIKE '%{0}%' OR description LIKE '%{0}%'",
+                    currentFilter.Replace("'", "''"));
+                view.RowFilter = filterExpression;
+            }
+
+            // Применяем сортировку
+            if (!string.IsNullOrWhiteSpace(currentSortColumn))
+            {
+                string sortExpression = currentSortColumn + (sortAscending ? " ASC" : " DESC");
+                view.Sort = sortExpression;
+            }
+
+            // Получаем отфильтрованную таблицу
+            filteredTable = view.ToTable();
+
+            // Обновляем пагинацию
+            UpdatePagination();
+        }
+
+        // Обновление пагинации и отображение текущей страницы
+        private void UpdatePagination()
+        {
+            if (filteredTable == null) return;
+
+            totalRecords = filteredTable.Rows.Count;
+            totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+
+            if (totalPages == 0) totalPages = 1;
+
+            // Корректировка текущей страницы
+            if (currentPage > totalPages)
+                currentPage = totalPages;
+            if (currentPage < 1)
+                currentPage = 1;
+
+            // Получаем данные для текущей страницы
+            int startIndex = (currentPage - 1) * pageSize;
+            int endIndex = Math.Min(startIndex + pageSize - 1, totalRecords - 1);
+
+            DataTable pageTable = new DataTable();
+
+            if (totalRecords > 0)
+            {
+                // Копируем структуру
+                pageTable = filteredTable.Clone();
+
+                // Добавляем строки текущей страницы
+                for (int i = startIndex; i <= endIndex; i++)
+                {
+                    pageTable.ImportRow(filteredTable.Rows[i]);
+                }
+            }
+
+            // Отображаем данные
+            dataGridView1.DataSource = pageTable;
+            SetupGridColumns();
+
+            // Обновляем информацию о записях
+            int displayedRecords = pageTable.Rows.Count;
+            labelPageInfo.Text = $"{displayedRecords} из {totalRecords}";
+
+            // Обновляем кнопки пагинации
+            UpdatePaginationControls();
+        }
+
+        // Обновление элементов управления пагинацией
+        private void UpdatePaginationControls()
+        {
+            // Обновляем состояние кнопок
+            if (buttonPrev != null)
+                buttonPrev.Enabled = currentPage > 1;
+
+            if (buttonNext != null)
+                buttonNext.Enabled = currentPage < totalPages;
+
+            // Создаем кнопки для страниц
+            if (flowLayoutPanelPages != null)
+            {
+                flowLayoutPanelPages.Controls.Clear();
+
+                // Показываем не более 5 кнопок страниц для компактности
+                int startPage = Math.Max(1, currentPage - 2);
+                int endPage = Math.Min(totalPages, startPage + 4);
+
+                if (endPage - startPage < 4 && startPage > 1)
+                {
+                    startPage = Math.Max(1, endPage - 4);
+                }
+
+                // Кнопка "Первая страница"
+                if (startPage > 1)
+                {
+                    Button firstButton = CreatePageButton(1);
+                    flowLayoutPanelPages.Controls.Add(firstButton);
+
+                    if (startPage > 2)
+                    {
+                        Label dotsLabel = new Label();
+                        dotsLabel.Text = "...";
+                        dotsLabel.AutoSize = true;
+                        dotsLabel.TextAlign = ContentAlignment.MiddleCenter;
+                        dotsLabel.Padding = new Padding(5);
+                        flowLayoutPanelPages.Controls.Add(dotsLabel);
+                    }
+                }
+
+                // Кнопки страниц
+                for (int i = startPage; i <= endPage; i++)
+                {
+                    Button pageButton = CreatePageButton(i);
+                    flowLayoutPanelPages.Controls.Add(pageButton);
+                }
+
+                // Кнопка "Последняя страница"
+                if (endPage < totalPages)
+                {
+                    if (endPage < totalPages - 1)
+                    {
+                        Label dotsLabel = new Label();
+                        dotsLabel.Text = "...";
+                        dotsLabel.AutoSize = true;
+                        dotsLabel.TextAlign = ContentAlignment.MiddleCenter;
+                        dotsLabel.Padding = new Padding(5);
+                        flowLayoutPanelPages.Controls.Add(dotsLabel);
+                    }
+
+                    Button lastButton = CreatePageButton(totalPages);
+                    flowLayoutPanelPages.Controls.Add(lastButton);
+                }
+            }
+        }
+
+        // Создание кнопки для страницы
+        private Button CreatePageButton(int pageNumber)
+        {
+            Button btn = new Button();
+            btn.Text = pageNumber.ToString();
+            btn.Tag = pageNumber;
+            btn.Width = 35;
+            btn.Height = 30;
+            btn.Margin = new Padding(2);
+
+            // Выделяем текущую страницу
+            if (pageNumber == currentPage)
+            {
+                btn.BackColor = Color.LightBlue;
+                btn.Font = new Font(btn.Font, FontStyle.Bold);
+            }
+            else
+            {
+                btn.BackColor = SystemColors.Control;
+                btn.Font = new Font(btn.Font, FontStyle.Regular);
+            }
+
+            btn.Click += PageButton_Click;
+            return btn;
+        }
+
+        // Обработчик клика по кнопке страницы
+        private void PageButton_Click(object sender, EventArgs e)
+        {
+            Button btn = sender as Button;
+            if (btn != null && btn.Tag != null)
+            {
+                int pageNumber = (int)btn.Tag;
+                GoToPage(pageNumber);
+            }
+        }
+
+        // Переход на указанную страницу
+        private void GoToPage(int pageNumber)
+        {
+            if (pageNumber < 1 || pageNumber > totalPages || pageNumber == currentPage)
+                return;
+
+            currentPage = pageNumber;
+            UpdatePagination();
+        }
+
+        // Обработчик кнопки "Назад"
+        private void ButtonPrev_Click(object sender, EventArgs e)
+        {
+            GoToPage(currentPage - 1);
+        }
+
+        // Обработчик кнопки "Вперед"
+        private void ButtonNext_Click(object sender, EventArgs e)
+        {
+            GoToPage(currentPage + 1);
+        }
+
+       
+        // Обработчик поиска
+        private void textBoxSearch_TextChanged(object sender, EventArgs e)
+        {
+            // Предполагаем, что у вас есть TextBox для поиска
+            // Если его нет, создайте или переименуйте существующий
+            TextBox searchBox = sender as TextBox;
+            if (searchBox != null)
+            {
+                currentFilter = searchBox.Text.Trim();
+                currentPage = 1; // Сбрасываем на первую страницу
+                ApplyFilterAndSort();
             }
         }
 
@@ -75,60 +355,71 @@ namespace WindowsFormsApp1
             {
                 if (row.IsNewRow) continue;
 
-                bool productDeleted =
-                    row.Cells["is_deleted"] != null &&
-                    Convert.ToInt32(row.Cells["is_deleted"].Value) == 1;
+                bool productDeleted = false;
+                bool categoryDeleted = false;
 
-                bool categoryDeleted =
-                    row.Cells["category_deleted"] != null &&
-                    row.Cells["category_deleted"].Value != DBNull.Value &&
-                    Convert.ToInt32(row.Cells["category_deleted"].Value) == 1;
+                if (row.Cells["is_deleted"] != null && row.Cells["is_deleted"].Value != null)
+                    productDeleted = Convert.ToInt32(row.Cells["is_deleted"].Value) == 1;
+
+                if (row.Cells["category_deleted"] != null && row.Cells["category_deleted"].Value != null &&
+                    row.Cells["category_deleted"].Value != DBNull.Value)
+                    categoryDeleted = Convert.ToInt32(row.Cells["category_deleted"].Value) == 1;
 
                 if (categoryDeleted)
                 {
-                    // 🧂 СВЕТЛО-СЕРЫЙ "СОУС"
                     row.DefaultCellStyle.BackColor = Color.FromArgb(255, 200, 87);
-                    row.DefaultCellStyle.Font = new Font(
-                        dataGridView1.Font,
-                        FontStyle.Italic
-                    );
+                    row.DefaultCellStyle.Font = new Font(dataGridView1.Font, FontStyle.Italic);
                 }
                 else
                 {
-                    // сброс
                     row.DefaultCellStyle.BackColor = dataGridView1.DefaultCellStyle.BackColor;
                     row.DefaultCellStyle.ForeColor = dataGridView1.DefaultCellStyle.ForeColor;
                     row.DefaultCellStyle.Font = dataGridView1.Font;
                 }
             }
         }
+
         private void SetupGridColumns()
         {
             dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridView1.MultiSelect = false;
             dataGridView1.RowTemplate.Height = 60;
+
             if (dataGridView1.Columns.Contains("category_deleted"))
                 dataGridView1.Columns["category_deleted"].Visible = false;
             if (dataGridView1.Columns.Contains("id"))
                 dataGridView1.Columns["id"].Visible = false;
-
             if (dataGridView1.Columns.Contains("image_path"))
                 dataGridView1.Columns["image_path"].Visible = false;
-
             if (dataGridView1.Columns.Contains("is_deleted"))
                 dataGridView1.Columns["is_deleted"].Visible = false;
 
             // Заголовки
             if (dataGridView1.Columns.Contains("article"))
+            {
                 dataGridView1.Columns["article"].HeaderText = "Артикул";
+                dataGridView1.Columns["article"].SortMode = DataGridViewColumnSortMode.Programmatic;
+            }
             if (dataGridView1.Columns.Contains("name"))
+            {
                 dataGridView1.Columns["name"].HeaderText = "Название";
+                dataGridView1.Columns["name"].SortMode = DataGridViewColumnSortMode.Programmatic;
+            }
             if (dataGridView1.Columns.Contains("description"))
+            {
                 dataGridView1.Columns["description"].HeaderText = "Описание";
+                dataGridView1.Columns["description"].SortMode = DataGridViewColumnSortMode.Programmatic;
+            }
             if (dataGridView1.Columns.Contains("price"))
+            {
                 dataGridView1.Columns["price"].HeaderText = "Цена";
+                dataGridView1.Columns["price"].SortMode = DataGridViewColumnSortMode.Programmatic;
+            }
             if (dataGridView1.Columns.Contains("category_name"))
+            {
                 dataGridView1.Columns["category_name"].HeaderText = "Категория";
+                dataGridView1.Columns["category_name"].SortMode = DataGridViewColumnSortMode.Programmatic;
+            }
 
             // Добавляем колонку для картинок если ее нет
             if (!dataGridView1.Columns.Contains("image_col"))
@@ -138,13 +429,17 @@ namespace WindowsFormsApp1
                 imgCol.HeaderText = "Картинка";
                 imgCol.Width = 70;
                 imgCol.ImageLayout = DataGridViewImageCellLayout.Zoom;
+                imgCol.SortMode = DataGridViewColumnSortMode.NotSortable;
                 dataGridView1.Columns.Add(imgCol);
             }
 
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
 
-        // Добавляем проверку уникальности артикула при UPDATE
+        // Остальные методы (IsArticleExistsForOtherProduct, button2_Click и т.д.) 
+        // остаются без изменений, но в них нужно добавить вызов LoadData() 
+        // после добавления/обновления/удаления записей
+
         private bool IsArticleExistsForOtherProduct(string article, int excludeProductId)
         {
             string query = "SELECT COUNT(*) FROM products WHERE article = @art AND id != @id AND is_deleted = 0";
@@ -160,7 +455,7 @@ namespace WindowsFormsApp1
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void button2_Click(object sender, EventArgs e) // Обновление
         {
             if (currentProductId == 0)
             {
@@ -170,28 +465,25 @@ namespace WindowsFormsApp1
 
             try
             {
-                // Проверка артикула при обновлении
                 if (IsArticleExistsForOtherProduct(textBox1.Text, currentProductId))
                 {
-                    MessageBox.Show(
-                        "Артикул с таким товаром уже используется другим товаром",
-                        "Ошибка",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning
-                    );
+                    MessageBox.Show("Артикул с таким товаром уже используется другим товаром",
+                        "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     textBox1.Focus();
                     return;
                 }
-                if (Convert.ToInt32(dataGridView1.CurrentRow.Cells["category_deleted"].Value) == 1)
+
+                // Проверка на удаленную категорию
+                DataGridViewRow row = dataGridView1.CurrentRow;
+                if (row != null && row.Cells["category_deleted"].Value != null &&
+                    row.Cells["category_deleted"].Value != DBNull.Value &&
+                    Convert.ToInt32(row.Cells["category_deleted"].Value) == 1)
                 {
-                    MessageBox.Show(
-                        "Нельзя редактировать товар с удалённой категорией",
-                        "Ошибка",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning
-                    );
+                    MessageBox.Show("Нельзя редактировать товар с удалённой категорией",
+                        "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
+
                 decimal price = decimal.Parse(textBox4.Text);
                 int catId = GetCategoryId(comboBox1.Text);
 
@@ -211,7 +503,7 @@ namespace WindowsFormsApp1
                     cmd.ExecuteNonQuery();
                 }
 
-                LoadData();
+                LoadData(); // Перезагружаем все данные
                 MessageBox.Show("Обновлено");
             }
             catch (Exception ex)
@@ -220,8 +512,7 @@ namespace WindowsFormsApp1
             }
         }
 
-        // Мягкое удаление товара
-        private void button3_Click(object sender, EventArgs e)
+        private void button3_Click(object sender, EventArgs e) // Удаление
         {
             if (currentProductId == 0)
             {
@@ -229,36 +520,25 @@ namespace WindowsFormsApp1
                 return;
             }
 
-            string productName = textBox2.Text.Trim();
-
             if (IsProductUsedInOrdersById(currentProductId))
             {
-                // Предупреждение о том, что товар используется в заказах
                 DialogResult result = MessageBox.Show(
                     "Этот товар используется в заказах. При удалении товар будет скрыт из каталога, " +
-                    "но останется в истории заказов.\n\n" +
-                    "Вы уверены, что хотите удалить товар?",
-                    "Подтверждение удаления",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning
-                );
+                    "но останется в истории заказов.\n\nВы уверены, что хотите удалить товар?",
+                    "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
                 if (result == DialogResult.No)
-                {
                     return;
-                }
             }
             else
             {
-                if (MessageBox.Show("Удалить товар?", "Подтверждение", MessageBoxButtons.YesNo) == DialogResult.No)
-                {
+                if (MessageBox.Show("Удалить товар?", "Подтверждение",
+                    MessageBoxButtons.YesNo) == DialogResult.No)
                     return;
-                }
             }
 
             try
             {
-                // Мягкое удаление - устанавливаем флаг is_deleted = 1
                 string query = "UPDATE products SET is_deleted = 1 WHERE id = @id";
 
                 using (MySqlConnection connection = DbConfig.GetConnection())
@@ -269,9 +549,10 @@ namespace WindowsFormsApp1
                     cmd.ExecuteNonQuery();
                 }
 
-                LoadData();
+                LoadData(); // Перезагружаем данные
                 ClearFields();
-                MessageBox.Show("Товар удален", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Товар удален", "Успешно",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
@@ -279,126 +560,84 @@ namespace WindowsFormsApp1
             }
         }
 
-        // Метод для удаления файла изображения
-        private void DeleteProductImageFile(int productId)
+        private void button1_Click(object sender, EventArgs e) // Добавление
         {
+            int catId;
+
             try
             {
-                // Получаем путь к изображению из БД
-                string query = "SELECT image_path FROM products WHERE id = @id";
-                string imagePath = "";
-
-                using (MySqlConnection connection = DbConfig.GetConnection())
-                {
-                    connection.Open();
-                    MySqlCommand cmd = new MySqlCommand(query, connection);
-                    cmd.Parameters.AddWithValue("@id", productId);
-                    object result = cmd.ExecuteScalar();
-                    if (result != null && result != DBNull.Value)
-                    {
-                        imagePath = result.ToString();
-                    }
-                }
-
-                // Если путь существует, пытаемся удалить файл
-                if (!string.IsNullOrEmpty(imagePath))
-                {
-                    string fullPath = GetFullImagePath(imagePath);
-                    if (!string.IsNullOrEmpty(fullPath) && File.Exists(fullPath))
-                    {
-                        File.Delete(fullPath);
-                    }
-                }
+                catId = GetCategoryId(comboBox1.Text);
             }
             catch
             {
-                // Игнорируем ошибки при удалении файла
+                MessageBox.Show("Заполните все поля", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
-        }
 
-        // Обновляем метод для сохранения изображения
-        private void UpdateProductImage(int productId, string imagePath)
-        {
             try
             {
-                string query = "UPDATE products SET image_path = @img WHERE id = @id";
+                if (string.IsNullOrWhiteSpace(textBox1.Text) ||
+                    string.IsNullOrWhiteSpace(textBox2.Text) ||
+                    string.IsNullOrWhiteSpace(textBox4.Text) ||
+                    comboBox1.SelectedIndex == -1)
+                {
+                    MessageBox.Show("Заполните все поля");
+                    return;
+                }
+
+                if (!decimal.TryParse(textBox4.Text, out decimal price) || price <= 0)
+                {
+                    MessageBox.Show("Неправильная цена");
+                    return;
+                }
+
+                if (IsArticleExists(textBox1.Text))
+                {
+                    MessageBox.Show("Артикул с таким товаром уже используется",
+                        "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    textBox1.Focus();
+                    return;
+                }
+
+                string imgPath = "";
+
+                string query = @"INSERT INTO products 
+            (article, name, description, price, category_id, image_path, is_deleted)
+            VALUES 
+            (@art, @name, @desc, @price, @catId, @img, 0)";
 
                 using (MySqlConnection connection = DbConfig.GetConnection())
                 {
                     connection.Open();
                     MySqlCommand cmd = new MySqlCommand(query, connection);
-                    cmd.Parameters.AddWithValue("@img", imagePath);
-                    cmd.Parameters.AddWithValue("@id", productId);
+                    cmd.Parameters.AddWithValue("@art", textBox1.Text);
+                    cmd.Parameters.AddWithValue("@name", textBox2.Text);
+                    cmd.Parameters.AddWithValue("@desc", textBox3.Text);
+                    cmd.Parameters.AddWithValue("@price", price);
+                    cmd.Parameters.AddWithValue("@catId", catId);
+                    cmd.Parameters.AddWithValue("@img", imgPath);
                     cmd.ExecuteNonQuery();
                 }
 
-                LoadData();
+                LoadData(); // Перезагружаем данные
+                ClearFields();
+                MessageBox.Show("Добавлено");
+            }
+            catch (MySqlException ex) when (ex.Number == 1062)
+            {
+                MessageBox.Show("Артикул с таким товаром уже используется",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка при обновлении изображения: " + ex.Message);
+                MessageBox.Show("Ошибка: " + ex.Message);
             }
         }
 
-        private void button6_Click(object sender, EventArgs e)
-        {
-            if (currentProductId == 0)
-            {
-                MessageBox.Show("Сначала выберите товар из таблицы");
-                return;
-            }
+        // Остальные методы (LoadImagesToGrid, GetFullImagePath, и т.д.) 
+        // остаются без изменений
 
-            DialogResult result = MessageBox.Show("Удалить изображение у выбранного товара?",
-                "Подтверждение удаления", MessageBoxButtons.YesNo);
-
-            if (result == DialogResult.Yes)
-            {
-                try
-                {
-                    // Сначала удаляем файл изображения
-                    DeleteProductImageFile(currentProductId);
-
-                    // Затем обновляем запись в БД
-                    string query = "UPDATE products SET image_path = NULL WHERE id = @id";
-
-                    using (MySqlConnection connection = DbConfig.GetConnection())
-                    {
-                        connection.Open();
-                        MySqlCommand cmd = new MySqlCommand(query, connection);
-                        cmd.Parameters.AddWithValue("@id", currentProductId);
-                        cmd.ExecuteNonQuery();
-                    }
-
-                    // Очищаем PictureBox
-                    pictureBox1.Image = null;
-
-                    LoadData();
-                    MessageBox.Show("Изображение удалено");
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Ошибка при удалении изображения: " + ex.Message);
-                }
-            }
-        }
-
-        // Добавляем проверку, используется ли товар в заказах (по ID товара)
-        private bool IsProductUsedInOrdersById(int productId)
-        {
-            using (MySqlConnection connection = DbConfig.GetConnection())
-            {
-                connection.Open();
-                MySqlCommand cmd = new MySqlCommand(
-                    @"SELECT COUNT(*) FROM order_items oi
-                      INNER JOIN orders o ON oi.order_id = o.id
-                      WHERE oi.product_id = @productId",
-                    connection);
-                cmd.Parameters.AddWithValue("@productId", productId);
-                return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
-            }
-        }
-
-        // Другие методы остаются без изменений...
         private void LoadImagesToGrid()
         {
             try
@@ -517,7 +756,8 @@ namespace WindowsFormsApp1
                 comboBox1.Text = row.Cells["category_name"].Value?.ToString() ?? "";
 
                 string path = row.Cells["image_path"].Value?.ToString() ?? "";
-                currentImagePath = path; // <-- добавляем сюда
+                currentImagePath = path;
+
                 string fullPath = GetFullImagePath(path);
                 if (!string.IsNullOrEmpty(fullPath) && File.Exists(fullPath))
                 {
@@ -527,201 +767,15 @@ namespace WindowsFormsApp1
                 {
                     pictureBox1.Image = null;
                 }
-                bool categoryDeleted = row.Cells["category_deleted"].Value != DBNull.Value & Convert.ToInt32(row.Cells["category_deleted"].Value) == 1;
 
-                if (categoryDeleted)
+                if (row.Cells["category_deleted"].Value != DBNull.Value &&
+                    Convert.ToInt32(row.Cells["category_deleted"].Value) == 1)
                 {
                     MessageBox.Show(
                         "Категория этого товара удалена. Товар доступен только для просмотра.",
-                        "Внимание",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning
+                        "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning
                     );
                 }
-            }
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            int catId;
-
-            try
-            {
-                catId = GetCategoryId(comboBox1.Text);
-            }
-            catch
-            {
-                MessageBox.Show(
-                    "Заполните все поля",
-                    "Ошибка",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning
-                );
-                return;
-            }
-
-            try
-            {
-                if (string.IsNullOrWhiteSpace(textBox1.Text) ||
-                    string.IsNullOrWhiteSpace(textBox2.Text) ||
-                    string.IsNullOrWhiteSpace(textBox4.Text) ||
-                    comboBox1.SelectedIndex == -1)
-                {
-                    MessageBox.Show("Заполните все поля");
-                    return;
-                }
-
-                if (!decimal.TryParse(textBox4.Text, out decimal price) || price <= 0)
-                {
-                    MessageBox.Show("Неправильная цена");
-                    return;
-                }
-
-                if (IsArticleExists(textBox1.Text))
-                {
-                    MessageBox.Show(
-                        "Артикул с таким товаром уже используется",
-                        "Ошибка",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning
-                    );
-                    textBox1.Focus();
-                    return;
-                }
-
-                string imgPath = "";
-
-                string query = @"INSERT INTO products 
-            (article, name, description, price, category_id, image_path, is_deleted)
-            VALUES 
-            (@art, @name, @desc, @price, @catId, @img, 0)";
-
-                using (MySqlConnection connection = DbConfig.GetConnection())
-                {
-                    connection.Open();
-                    MySqlCommand cmd = new MySqlCommand(query, connection);
-                    cmd.Parameters.AddWithValue("@art", textBox1.Text);
-                    cmd.Parameters.AddWithValue("@name", textBox2.Text);
-                    cmd.Parameters.AddWithValue("@desc", textBox3.Text);
-                    cmd.Parameters.AddWithValue("@price", price);
-                    cmd.Parameters.AddWithValue("@catId", catId);
-                    cmd.Parameters.AddWithValue("@img", imgPath);
-                    cmd.ExecuteNonQuery();
-                }
-
-                LoadData();
-                ClearFields();
-                MessageBox.Show("Добавлено");
-            }
-            catch (MySqlException ex) when (ex.Number == 1062)
-            {
-                MessageBox.Show(
-                    "Артикул с таким товаром уже используется",
-                    "Ошибка",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ошибка: " + ex.Message);
-            }
-        }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-            if (currentProductId == 0)
-            {
-                MessageBox.Show("Сначала выберите товар из таблицы");
-                return;
-            }
-
-            OpenFileDialog dlg = new OpenFileDialog();
-            dlg.Filter = "Картинки|*.jpg;*.jpeg;*.png;*.bmp";
-
-            if (dlg.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    pictureBox1.Image = Image.FromFile(dlg.FileName);
-
-                    // Проверяем, нужно ли копировать
-                    string savedImagePath;
-                    if (Path.GetDirectoryName(dlg.FileName) == appFolderPath)
-                    {
-                        savedImagePath = dlg.FileName; // уже в папке, копировать не надо
-                    }
-                    else
-                    {
-                        savedImagePath = SaveImage();
-                    }
-
-                    if (!string.IsNullOrEmpty(savedImagePath))
-                    {
-                        UpdateProductImage(currentProductId, Path.GetFileName(savedImagePath));
-                        currentImagePath = Path.GetFileName(savedImagePath);
-                        MessageBox.Show("Изображение добавлено");
-                    }
-                    else
-                    {
-                        MessageBox.Show("Ошибка при сохранении изображения");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Ошибка загрузки: " + ex.Message);
-                }
-            }
-        }
-
-        private Image ResizeImageToMaxSize(Image img, int maxWidth, int maxHeight)
-        {
-            int width = img.Width;
-            int height = img.Height;
-
-            // Если размер меньше максимального, не изменяем
-            if (width <= maxWidth && height <= maxHeight)
-                return new Bitmap(img);
-
-            double ratioX = (double)maxWidth / width;
-            double ratioY = (double)maxHeight / height;
-            double ratio = Math.Min(ratioX, ratioY);
-
-            int newWidth = (int)(width * ratio);
-            int newHeight = (int)(height * ratio);
-
-            Bitmap newImg = new Bitmap(newWidth, newHeight);
-            using (Graphics g = Graphics.FromImage(newImg))
-            {
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                g.DrawImage(img, 0, 0, newWidth, newHeight);
-            }
-            return newImg;
-        }
-
-        private string SaveImage()
-        {
-            try
-            {
-                if (pictureBox1.Image == null) return "";
-
-                // Генерируем уникальное имя
-                string name = Guid.NewGuid().ToString() + ".jpg";
-                string path = Path.Combine(appFolderPath, name);
-
-                // Сжимаем изображение до максимального размера
-                using (Image resized = ResizeImageToMaxSize(pictureBox1.Image, 800, 800))
-                {
-                    resized.Save(path, System.Drawing.Imaging.ImageFormat.Jpeg);
-                }
-
-                // ВАЖНО: сохраняем относительное имя (как вы и кладёте в БД)
-                currentImagePath = name;
-                return path;
-            }
-            catch
-            {
-                return "";
             }
         }
 
@@ -758,6 +812,21 @@ namespace WindowsFormsApp1
             }
         }
 
+        private bool IsProductUsedInOrdersById(int productId)
+        {
+            using (MySqlConnection connection = DbConfig.GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    @"SELECT COUNT(*) FROM order_items oi
+                      INNER JOIN orders o ON oi.order_id = o.id
+                      WHERE oi.product_id = @productId",
+                    connection);
+                cmd.Parameters.AddWithValue("@productId", productId);
+                return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+            }
+        }
+
         private void ClearFields()
         {
             textBox1.Text = "";
@@ -767,6 +836,16 @@ namespace WindowsFormsApp1
             comboBox1.Text = "";
             pictureBox1.Image = null;
             currentProductId = 0;
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+            CapitalizeFirstLetter(textBox2);
+        }
+
+        private void textBox3_TextChanged(object sender, EventArgs e)
+        {
+            CapitalizeFirstLetter(textBox3);
         }
 
         private void CapitalizeFirstLetter(TextBox tb)
@@ -794,7 +873,6 @@ namespace WindowsFormsApp1
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
             int cursor = textBox1.SelectionStart;
-            // Оставляем только цифры
             string cleaned = new string(textBox1.Text.Where(char.IsDigit).ToArray());
 
             if (textBox1.Text != cleaned)
@@ -804,64 +882,239 @@ namespace WindowsFormsApp1
             }
         }
 
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
-            CapitalizeFirstLetter(textBox2);
-        }
-
-        private void textBox3_TextChanged(object sender, EventArgs e)
-        {
-            CapitalizeFirstLetter(textBox3);
-        }
-
         private void textBox4_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (char.IsControl(e.KeyChar))
                 return;
 
-            // Разрешаем цифры и запятую/точку для десятичных значений
             if (!char.IsDigit(e.KeyChar) && e.KeyChar != ',' && e.KeyChar != '.')
             {
                 e.Handled = true;
             }
 
-            // Заменяем точку на запятую
             if (e.KeyChar == '.')
             {
                 e.KeyChar = ',';
             }
 
-            // Проверяем, что запятая только одна
             if (e.KeyChar == ',' && textBox4.Text.Contains(","))
             {
                 e.Handled = true;
             }
         }
 
-        private void button5_Click(object sender, EventArgs e)
+        private void button4_Click(object sender, EventArgs e) // Добавление изображения
+        {
+            if (currentProductId == 0)
+            {
+                MessageBox.Show("Сначала выберите товар из таблицы");
+                return;
+            }
+
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.Filter = "Картинки|*.jpg;*.jpeg;*.png;*.bmp";
+
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    pictureBox1.Image = Image.FromFile(dlg.FileName);
+
+                    string savedImagePath;
+                    if (Path.GetDirectoryName(dlg.FileName) == appFolderPath)
+                    {
+                        savedImagePath = dlg.FileName;
+                    }
+                    else
+                    {
+                        savedImagePath = SaveImage();
+                    }
+
+                    if (!string.IsNullOrEmpty(savedImagePath))
+                    {
+                        UpdateProductImage(currentProductId, Path.GetFileName(savedImagePath));
+                        currentImagePath = Path.GetFileName(savedImagePath);
+                        MessageBox.Show("Изображение добавлено");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Ошибка при сохранении изображения");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Ошибка загрузки: " + ex.Message);
+                }
+            }
+        }
+
+        private void UpdateProductImage(int productId, string imagePath)
+        {
+            try
+            {
+                string query = "UPDATE products SET image_path = @img WHERE id = @id";
+
+                using (MySqlConnection connection = DbConfig.GetConnection())
+                {
+                    connection.Open();
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@img", imagePath);
+                    cmd.Parameters.AddWithValue("@id", productId);
+                    cmd.ExecuteNonQuery();
+                }
+
+                LoadData(); // Перезагружаем данные
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при обновлении изображения: " + ex.Message);
+            }
+        }
+
+        private string SaveImage()
+        {
+            try
+            {
+                if (pictureBox1.Image == null) return "";
+
+                string name = Guid.NewGuid().ToString() + ".jpg";
+                string path = Path.Combine(appFolderPath, name);
+
+                using (Image resized = ResizeImageToMaxSize(pictureBox1.Image, 800, 800))
+                {
+                    resized.Save(path, System.Drawing.Imaging.ImageFormat.Jpeg);
+                }
+
+                currentImagePath = name;
+                return path;
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        private Image ResizeImageToMaxSize(Image img, int maxWidth, int maxHeight)
+        {
+            int width = img.Width;
+            int height = img.Height;
+
+            if (width <= maxWidth && height <= maxHeight)
+                return new Bitmap(img);
+
+            double ratioX = (double)maxWidth / width;
+            double ratioY = (double)maxHeight / height;
+            double ratio = Math.Min(ratioX, ratioY);
+
+            int newWidth = (int)(width * ratio);
+            int newHeight = (int)(height * ratio);
+
+            Bitmap newImg = new Bitmap(newWidth, newHeight);
+            using (Graphics g = Graphics.FromImage(newImg))
+            {
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                g.DrawImage(img, 0, 0, newWidth, newHeight);
+            }
+            return newImg;
+        }
+
+        private void button6_Click(object sender, EventArgs e) // Удаление изображения
+        {
+            if (currentProductId == 0)
+            {
+                MessageBox.Show("Сначала выберите товар из таблицы");
+                return;
+            }
+
+            DialogResult result = MessageBox.Show("Удалить изображение у выбранного товара?",
+                "Подтверждение удаления", MessageBoxButtons.YesNo);
+
+            if (result == DialogResult.Yes)
+            {
+                try
+                {
+                    DeleteProductImageFile(currentProductId);
+
+                    string query = "UPDATE products SET image_path = NULL WHERE id = @id";
+
+                    using (MySqlConnection connection = DbConfig.GetConnection())
+                    {
+                        connection.Open();
+                        MySqlCommand cmd = new MySqlCommand(query, connection);
+                        cmd.Parameters.AddWithValue("@id", currentProductId);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    pictureBox1.Image = null;
+
+                    LoadData(); // Перезагружаем данные
+                    MessageBox.Show("Изображение удалено");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Ошибка при удалении изображения: " + ex.Message);
+                }
+            }
+        }
+
+        private void DeleteProductImageFile(int productId)
+        {
+            try
+            {
+                string query = "SELECT image_path FROM products WHERE id = @id";
+                string imagePath = "";
+
+                using (MySqlConnection connection = DbConfig.GetConnection())
+                {
+                    connection.Open();
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@id", productId);
+                    object result = cmd.ExecuteScalar();
+                    if (result != null && result != DBNull.Value)
+                    {
+                        imagePath = result.ToString();
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(imagePath))
+                {
+                    string fullPath = GetFullImagePath(imagePath);
+                    if (!string.IsNullOrEmpty(fullPath) && File.Exists(fullPath))
+                    {
+                        File.Delete(fullPath);
+                    }
+                }
+            }
+            catch
+            {
+                // Игнорируем ошибки при удалении файла
+            }
+        }
+
+        private void button5_Click(object sender, EventArgs e) // Возврат в главное меню
         {
             mainadmin adminForm = new mainadmin();
-            for (double opacity = 1.0; opacity > 0; opacity -= 0.24) // было 0.05
+            for (double opacity = 1.0; opacity > 0; opacity -= 0.24)
             {
                 this.Opacity = opacity;
                 Application.DoEvents();
-                System.Threading.Thread.Sleep(7); // было 20
+                System.Threading.Thread.Sleep(7);
             }
 
             adminForm.Opacity = 0;
             adminForm.Show();
-            // Быстрое появление - 0.4 секунды
-            for (double opacity = 0; opacity <= 1.0; opacity += 0.24) // было 0.05
+            for (double opacity = 0; opacity <= 1.0; opacity += 0.24)
             {
                 adminForm.Opacity = opacity;
                 Application.DoEvents();
-                System.Threading.Thread.Sleep(7); // было 20
+                System.Threading.Thread.Sleep(7);
             }
             allowClose = true;
             this.Hide();
         }
 
         private bool allowClose = false;
+
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             if (!allowClose && e.CloseReason == CloseReason.UserClosing)
@@ -871,7 +1124,5 @@ namespace WindowsFormsApp1
             }
             base.OnFormClosing(e);
         }
-
-        
     }
 }

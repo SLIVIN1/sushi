@@ -49,6 +49,10 @@ namespace WindowsFormsApp1
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.button6 = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.buttonPrev = new System.Windows.Forms.Button();
+            this.buttonNext = new System.Windows.Forms.Button();
+            this.labelPageInfo = new System.Windows.Forms.Label();
+            this.flowLayoutPanelPages = new System.Windows.Forms.FlowLayoutPanel();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -165,7 +169,7 @@ namespace WindowsFormsApp1
             // 
             this.button1.BackColor = System.Drawing.Color.White;
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button1.Location = new System.Drawing.Point(402, 357);
+            this.button1.Location = new System.Drawing.Point(402, 365);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(152, 37);
             this.button1.TabIndex = 24;
@@ -255,12 +259,50 @@ namespace WindowsFormsApp1
             this.pictureBox1.TabStop = false;
             this.pictureBox1.Visible = false;
             // 
+            // buttonPrev
+            // 
+            this.buttonPrev.Location = new System.Drawing.Point(508, 334);
+            this.buttonPrev.Name = "buttonPrev";
+            this.buttonPrev.Size = new System.Drawing.Size(30, 23);
+            this.buttonPrev.TabIndex = 31;
+            this.buttonPrev.Text = "←";
+            this.buttonPrev.UseVisualStyleBackColor = true;
+            // 
+            // buttonNext
+            // 
+            this.buttonNext.Location = new System.Drawing.Point(544, 334);
+            this.buttonNext.Name = "buttonNext";
+            this.buttonNext.Size = new System.Drawing.Size(34, 23);
+            this.buttonNext.TabIndex = 32;
+            this.buttonNext.Text = "→";
+            this.buttonNext.UseVisualStyleBackColor = true;
+            // 
+            // labelPageInfo
+            // 
+            this.labelPageInfo.AutoSize = true;
+            this.labelPageInfo.Location = new System.Drawing.Point(38, 339);
+            this.labelPageInfo.Name = "labelPageInfo";
+            this.labelPageInfo.Size = new System.Drawing.Size(35, 13);
+            this.labelPageInfo.TabIndex = 34;
+            this.labelPageInfo.Text = "label7";
+            // 
+            // flowLayoutPanelPages
+            // 
+            this.flowLayoutPanelPages.Location = new System.Drawing.Point(586, 334);
+            this.flowLayoutPanelPages.Name = "flowLayoutPanelPages";
+            this.flowLayoutPanelPages.Size = new System.Drawing.Size(129, 23);
+            this.flowLayoutPanelPages.TabIndex = 35;
+            // 
             // productadmin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(244)))), ((int)(((byte)(245)))));
             this.ClientSize = new System.Drawing.Size(800, 587);
+            this.Controls.Add(this.flowLayoutPanelPages);
+            this.Controls.Add(this.labelPageInfo);
+            this.Controls.Add(this.buttonNext);
+            this.Controls.Add(this.buttonPrev);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.textBox4);
             this.Controls.Add(this.textBox3);
@@ -315,5 +357,9 @@ namespace WindowsFormsApp1
         private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.Button buttonPrev;
+        private System.Windows.Forms.Button buttonNext;
+        private System.Windows.Forms.Label labelPageInfo;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelPages;
     }
 }
