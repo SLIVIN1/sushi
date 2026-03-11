@@ -40,6 +40,11 @@ namespace WindowsFormsApp1
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.flowLayoutPanelPages = new System.Windows.Forms.FlowLayoutPanel();
+            this.labelPageInfo = new System.Windows.Forms.Label();
+            this.buttonNext = new System.Windows.Forms.Button();
+            this.buttonPrev = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -71,7 +76,7 @@ namespace WindowsFormsApp1
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(382, 323);
+            this.label2.Location = new System.Drawing.Point(379, 335);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(141, 13);
             this.label2.TabIndex = 2;
@@ -80,7 +85,7 @@ namespace WindowsFormsApp1
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 323);
+            this.label3.Location = new System.Drawing.Point(9, 335);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(107, 13);
             this.label3.TabIndex = 2;
@@ -89,7 +94,7 @@ namespace WindowsFormsApp1
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(224, 323);
+            this.label4.Location = new System.Drawing.Point(221, 335);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(109, 13);
             this.label4.TabIndex = 2;
@@ -124,7 +129,7 @@ namespace WindowsFormsApp1
             this.comboBox1.BackColor = System.Drawing.Color.White;
             this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(382, 353);
+            this.comboBox1.Location = new System.Drawing.Point(379, 365);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(121, 21);
             this.comboBox1.TabIndex = 4;
@@ -132,7 +137,7 @@ namespace WindowsFormsApp1
             // textBox1
             // 
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBox1.Location = new System.Drawing.Point(15, 353);
+            this.textBox1.Location = new System.Drawing.Point(12, 365);
             this.textBox1.MaxLength = 20;
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(159, 20);
@@ -144,10 +149,53 @@ namespace WindowsFormsApp1
             this.comboBox2.BackColor = System.Drawing.Color.White;
             this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(227, 353);
+            this.comboBox2.Location = new System.Drawing.Point(224, 365);
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(121, 21);
             this.comboBox2.TabIndex = 6;
+            // 
+            // flowLayoutPanelPages
+            // 
+            this.flowLayoutPanelPages.Location = new System.Drawing.Point(371, 309);
+            this.flowLayoutPanelPages.Name = "flowLayoutPanelPages";
+            this.flowLayoutPanelPages.Size = new System.Drawing.Size(129, 23);
+            this.flowLayoutPanelPages.TabIndex = 39;
+            // 
+            // labelPageInfo
+            // 
+            this.labelPageInfo.AutoSize = true;
+            this.labelPageInfo.Location = new System.Drawing.Point(-197, 269);
+            this.labelPageInfo.Name = "labelPageInfo";
+            this.labelPageInfo.Size = new System.Drawing.Size(35, 13);
+            this.labelPageInfo.TabIndex = 38;
+            this.labelPageInfo.Text = "label7";
+            // 
+            // buttonNext
+            // 
+            this.buttonNext.Location = new System.Drawing.Point(329, 309);
+            this.buttonNext.Name = "buttonNext";
+            this.buttonNext.Size = new System.Drawing.Size(34, 23);
+            this.buttonNext.TabIndex = 37;
+            this.buttonNext.Text = "→";
+            this.buttonNext.UseVisualStyleBackColor = true;
+            // 
+            // buttonPrev
+            // 
+            this.buttonPrev.Location = new System.Drawing.Point(293, 309);
+            this.buttonPrev.Name = "buttonPrev";
+            this.buttonPrev.Size = new System.Drawing.Size(30, 23);
+            this.buttonPrev.TabIndex = 36;
+            this.buttonPrev.Text = "←";
+            this.buttonPrev.UseVisualStyleBackColor = true;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(15, 314);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(35, 13);
+            this.label5.TabIndex = 40;
+            this.label5.Text = "label7";
             // 
             // productmanag
             // 
@@ -155,6 +203,11 @@ namespace WindowsFormsApp1
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(244)))), ((int)(((byte)(245)))));
             this.ClientSize = new System.Drawing.Size(540, 450);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.flowLayoutPanelPages);
+            this.Controls.Add(this.labelPageInfo);
+            this.Controls.Add(this.buttonNext);
+            this.Controls.Add(this.buttonPrev);
             this.Controls.Add(this.comboBox2);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.comboBox1);
@@ -191,5 +244,10 @@ namespace WindowsFormsApp1
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.ComboBox comboBox2;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelPages;
+        private System.Windows.Forms.Label labelPageInfo;
+        private System.Windows.Forms.Button buttonNext;
+        private System.Windows.Forms.Button buttonPrev;
+        private System.Windows.Forms.Label label5;
     }
 }
