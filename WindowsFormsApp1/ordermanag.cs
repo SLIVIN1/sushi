@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    public partial class ordermanag : BaseForm
+    public partial class ordermanag : Form
     {
         private DataTable menuTable;
         private DataTable cartTable;
@@ -24,7 +24,6 @@ namespace WindowsFormsApp1
         public ordermanag()
         {
             InitializeComponent();
-
             dateTimePicker1.Value = DateTime.Now;
             dateTimePicker1.Enabled = false;
             textBox2.KeyPress += textBox2_KeyPress;

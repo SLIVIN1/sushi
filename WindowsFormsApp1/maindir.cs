@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    public partial class maindir : BaseForm
+    public partial class maindir : Form
     {
         private string fullName = "";
         private string roleName = "";

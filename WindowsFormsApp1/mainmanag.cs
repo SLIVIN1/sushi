@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    public partial class mainmanag : BaseForm
+    public partial class mainmanag : Form
     {
         private string fullName = "";
         private string roleName = "";

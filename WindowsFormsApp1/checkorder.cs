@@ -13,7 +13,7 @@ using Word = Microsoft.Office.Interop.Word;
 
 namespace WindowsFormsApp1
 {
-    public partial class checkorder : BaseForm
+    public partial class checkorder : Form
     {
         private bool allowClose = false;
 

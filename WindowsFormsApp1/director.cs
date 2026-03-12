@@ -7,14 +7,13 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace WindowsFormsApp1
 {
-    public partial class director : BaseForm
+    public partial class director : Form
     {
         DataTable ordersTable = new DataTable();
         private bool allowClose = false;
         public director()
         {
             InitializeComponent();
-
             InitializeDateTimePickers(); // <-- обязательно!
             InitializeComboBoxes();
             SetupDataGridView();

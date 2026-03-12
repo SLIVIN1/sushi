@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    public partial class statusadmin : BaseForm
+    public partial class statusadmin : Form
     {
         private int currentStatusId = 0;
 

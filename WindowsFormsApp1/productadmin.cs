@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    public partial class productadmin : BaseForm
+    public partial class productadmin : Form
     {
         private DataTable productsTable;
         private DataTable filteredTable; // Для хранения отфильтрованных данных
@@ -32,7 +32,6 @@ namespace WindowsFormsApp1
 
             // Инициализация пагинации
             InitializePagination();
-
             textBox1.KeyPress += textBox1_KeyPress;
             textBox1.TextChanged += textBox1_TextChanged;
             textBox4.KeyPress += textBox4_KeyPress;

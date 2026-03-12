@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    public partial class productmanag : BaseForm
+    public partial class productmanag : Form
     {
         private DataTable productsTable;
         private DataTable filteredTable; // Для хранения отфильтрованных данных
@@ -29,7 +29,6 @@ namespace WindowsFormsApp1
 
             // Инициализация пагинации
             InitializePagination();
-
             textBox1.TextChanged += TextBoxSearch_TextChanged;
             comboBox1.SelectedIndexChanged += FilterChanged;
             comboBox2.SelectedIndexChanged += FilterChanged;
