@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace WindowsFormsApp1
 {
@@ -16,15 +15,7 @@ namespace WindowsFormsApp1
             InitializeComponent();
         }
 
-
         // ===================== ЗАГРУЗКА ТАБЛИЦ =====================
-        // Добавьте в начало класса:
-        private void LogError(string message, int lineNumber = 0)
-        {
-            string logPath = Path.Combine(Application.StartupPath, "import_errors.log");
-            string lineInfo = lineNumber > 0 ? $" [Строка {lineNumber}]" : "";
-            File.AppendAllText(logPath, $"{DateTime.Now}{lineInfo}: {message}\n");
-        }
         private void LoadTables()
         {
             try
@@ -50,8 +41,7 @@ namespace WindowsFormsApp1
             }
         }
 
-        // ===================== ВОССТАНОВЛЕНИЕ БД =====================
-
+        // ===================== СТОЛБЦЫ БЕЗ ID =====================
         private List<string> GetColumnsWithoutId(string table)
         {
             List<string> columns = new List<string>();
@@ -81,7 +71,6 @@ namespace WindowsFormsApp1
         }
 
         // ===================== ВЫБОР CSV =====================
-
         private void textBox1_DoubleClick(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
@@ -93,10 +82,7 @@ namespace WindowsFormsApp1
             }
         }
 
-
-
-        // ===================== ИМПОРТ CSV =====================
-
+        // ===================== ВОССТАНОВЛЕНИЕ СТРУКТУРЫ =====================
         private void button1_Click_1(object sender, EventArgs e)
         {
             try
@@ -128,11 +114,8 @@ namespace WindowsFormsApp1
                 MessageBox.Show("Ошибка восстановления БД:\n" + ex.Message);
             }
         }
+
         // ===================== ПАРСИНГ CSV СТРОКИ =====================
-        // ===================== ПАРСИНГ CSV СТРОКИ =====================
-        /// <summary>
-        /// Разбирает строку CSV с учётом кавычек и разделителя
-        /// </summary>
         private List<string> ParseCsvLine(string line, char delimiter)
         {
             List<string> result = new List<string>();
@@ -145,231 +128,37 @@ namespace WindowsFormsApp1
 
                 if (c == '"')
                 {
-                    // Если внутри кавычек встречаем двойные кавычки - это экранирование
                     if (inQuotes && i + 1 < line.Length && line[i + 1] == '"')
                     {
                         current.Append('"');
-                        i++; // Пропускаем следующую кавычку
+                        i++;
                     }
                     else
                     {
-                        // Переключаем состояние кавычек
                         inQuotes = !inQuotes;
                     }
                 }
                 else if (c == delimiter && !inQuotes)
                 {
-                    // Разделитель вне кавычек - добавляем значение
                     result.Add(current.ToString().Trim());
                     current.Clear();
                 }
                 else
                 {
-                    // Обычный символ - добавляем
                     current.Append(c);
                 }
             }
 
-            // Добавляем последнее значение
             result.Add(current.ToString().Trim());
-
             return result;
         }
 
-        /// <summary>
-        /// Определяет разделитель CSV (запятая или точка с запятой)
-        /// </summary>
+        // ===================== ОПРЕДЕЛЕНИЕ РАЗДЕЛИТЕЛЯ =====================
         private char DetectDelimiter(string headerLine)
         {
             int semicolons = headerLine.Count(c => c == ';');
             int commas = headerLine.Count(c => c == ',');
             return semicolons > commas ? ';' : ',';
-        }
-        private void button2_Click_1(object sender, EventArgs e)
-        {
-
-            if (comboBox1.SelectedItem == null)
-            {
-                MessageBox.Show("Выберите таблицу");
-                return;
-            }
-
-            if (!File.Exists(textBox1.Text))
-            {
-                MessageBox.Show("CSV файл не найден");
-                return;
-            }
-
-            string table = comboBox1.SelectedItem.ToString();
-            string file = textBox1.Text;
-            int inserted = 0;
-            int errors = 0;
-
-            try
-            {
-                // Очищаем лог перед началом
-                string logPath = Path.Combine(Application.StartupPath, "import_errors.log");
-                if (File.Exists(logPath))
-                    File.Delete(logPath);
-
-                // Столбцы из БД (без id)
-                var dbColumns = GetColumnsWithoutId(table);
-
-                // Получаем типы данных столбцов
-                var columnTypes = GetColumnTypes(table);
-
-                // Выводим информацию о таблице
-                LogError($"=== НАЧАЛО ИМПОРТА ===");
-                LogError($"Таблица: {table}");
-                LogError($"Столбцы БД: {string.Join(", ", dbColumns)}");
-                LogError($"Типы столбцов: {string.Join(", ", columnTypes.Select(kv => $"{kv.Key}={kv.Value}"))}");
-
-                if (dbColumns.Count == 0)
-                {
-                    MessageBox.Show("Не удалось получить столбцы таблицы");
-                    return;
-                }
-
-                // Читаем файл
-                var allLines = File.ReadAllLines(file, Encoding.UTF8);
-                LogError($"Всего строк в файле: {allLines.Length}");
-
-                if (allLines.Length < 2)
-                {
-                    MessageBox.Show("CSV файл пуст или содержит только заголовок");
-                    return;
-                }
-
-                // Определяем разделитель по первой строке (заголовку)
-                char delimiter = DetectDelimiter(allLines[0]);
-                LogError($"Определен разделитель: '{delimiter}'");
-
-                // Парсим заголовок CSV
-                var csvHeaders = ParseCsvLine(allLines[0], delimiter);
-                LogError($"Заголовки CSV: {string.Join(", ", csvHeaders)}");
-
-                // Проверяем количество столбцов
-                if (csvHeaders.Count != dbColumns.Count)
-                {
-                    string errorMsg = $"Несовпадение столбцов!\n\n" +
-                        $"CSV файл: {csvHeaders.Count} столбцов ({string.Join(", ", csvHeaders)})\n\n" +
-                        $"Таблица '{table}': {dbColumns.Count} столбцов ({string.Join(", ", dbColumns)})";
-
-                    LogError(errorMsg);
-                    MessageBox.Show(errorMsg, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                // Формируем SQL запрос один раз
-                string columnList = string.Join(",", dbColumns.Select(c => $"`{c}`"));
-                string paramList = string.Join(",", dbColumns.Select(c => "@" + c));
-                string query = $"INSERT IGNORE INTO `{table}` ({columnList}) VALUES ({paramList})";
-
-                LogError($"SQL запрос: {query}");
-
-                using (MySqlConnection conn = DbConfig.GetConnection())
-                {
-                    conn.Open();
-
-                    // Построчный импорт (пропускаем заголовок)
-                    for (int lineIndex = 1; lineIndex < allLines.Length; lineIndex++)
-                    {
-                        string line = allLines[lineIndex].Trim();
-
-                        // Пропускаем пустые строки
-                        if (string.IsNullOrEmpty(line))
-                        {
-                            LogError($"Строка {lineIndex + 1} пустая, пропущена", lineIndex + 1);
-                            continue;
-                        }
-
-                        try
-                        {
-                            var values = ParseCsvLine(line, delimiter);
-                            LogError($"Строка {lineIndex + 1}: распарсено {values.Count} значений", lineIndex + 1);
-                            LogError($"Значения: {string.Join(" | ", values)}", lineIndex + 1);
-
-                            if (values.Count != dbColumns.Count)
-                            {
-                                errors++;
-                                LogError($"Несовпадение количества значений: ожидалось {dbColumns.Count}, получено {values.Count}", lineIndex + 1);
-                                continue;
-                            }
-
-                            using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                            {
-                                for (int i = 0; i < dbColumns.Count; i++)
-                                {
-                                    string columnName = dbColumns[i];
-                                    string stringValue = values[i].Trim();
-
-                                    LogError($"Столбец {i + 1}: '{columnName}' = '{stringValue}'", lineIndex + 1);
-
-                                    // Обработка NULL
-                                    if (string.IsNullOrEmpty(stringValue) || stringValue.ToUpper() == "NULL")
-                                    {
-                                        cmd.Parameters.AddWithValue("@" + columnName, DBNull.Value);
-                                        LogError($"  -> NULL", lineIndex + 1);
-                                        continue;
-                                    }
-
-                                    // Получаем тип столбца
-                                    string columnType = columnTypes.ContainsKey(columnName)
-                                        ? columnTypes[columnName].ToLower()
-                                        : "string";
-
-                                    LogError($"  Тип столбца: {columnType}", lineIndex + 1);
-
-                                    // Преобразование значения в зависимости от типа столбца
-                                    object convertedValue = ConvertValueByType(stringValue, columnType, lineIndex + 1);
-
-                                    if (convertedValue == null)
-                                    {
-                                        cmd.Parameters.AddWithValue("@" + columnName, DBNull.Value);
-                                        LogError($"  -> Преобразовано в NULL", lineIndex + 1);
-                                    }
-                                    else
-                                    {
-                                        cmd.Parameters.AddWithValue("@" + columnName, convertedValue);
-                                        LogError($"  -> Преобразовано в: {convertedValue} (тип: {convertedValue.GetType()})", lineIndex + 1);
-                                    }
-                                }
-
-                                cmd.ExecuteNonQuery();
-                                inserted++;
-                                LogError($"  -> УСПЕШНО вставлено!", lineIndex + 1);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            errors++;
-                            LogError($"ОШИБКА: {ex.Message}", lineIndex + 1);
-
-                            // Показываем первую ошибку в MessageBox для быстрой диагностики
-                            if (errors == 1)
-                            {
-                                MessageBox.Show($"Первая ошибка в строке {lineIndex + 1}:\n{ex.Message}\n\nПодробности в файле import_errors.log",
-                                    "Ошибка импорта", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            }
-                        }
-                    }
-                }
-
-                string result = $"Импорт завершён!\n\nДобавлено записей: {inserted}\nОшибок: {errors}";
-
-                if (errors > 0)
-                {
-                    result += $"\n\nПодробности ошибок сохранены в файле:\nimport_errors.log";
-                }
-
-                MessageBox.Show(result, "Результат", MessageBoxButtons.OK,
-                    errors > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                LogError($"Критическая ошибка: {ex.Message}");
-                MessageBox.Show("Ошибка импорта:\n" + ex.Message + "\n\nПодробности в import_errors.log");
-            }
         }
 
         // ===================== ПОЛУЧЕНИЕ ТИПОВ СТОЛБЦОВ =====================
@@ -399,11 +188,14 @@ namespace WindowsFormsApp1
             return types;
         }
 
-        // ===================== ПРЕОБРАЗОВАНИЕ ЗНАЧЕНИЙ ПО ТИПУ =====================
-        private object ConvertValueByType(string value, string columnType, int lineNumber = 0)
+        // ===================== ПРЕОБРАЗОВАНИЕ ЗНАЧЕНИЙ =====================
+        private object ConvertValueByType(string value, string columnType)
         {
             try
             {
+                if (string.IsNullOrEmpty(value) || value.ToUpper() == "NULL")
+                    return DBNull.Value;
+
                 // Числовые типы
                 if (columnType.Contains("int") || columnType.Contains("tinyint") ||
                     columnType.Contains("smallint") || columnType.Contains("mediumint") ||
@@ -411,21 +203,15 @@ namespace WindowsFormsApp1
                 {
                     if (int.TryParse(value, out int intResult))
                         return intResult;
-                    else
-                    {
-                        LogError($"Не удалось преобразовать '{value}' в число", lineNumber);
-                        return 0; // или DBNull.Value, если нужно
-                    }
+                    return 0;
                 }
 
                 // Типы с плавающей точкой
                 if (columnType.Contains("decimal") || columnType.Contains("float") ||
                     columnType.Contains("double") || columnType.Contains("numeric"))
                 {
-                    // Заменяем запятую на точку для корректного парсинга
                     string normalizedValue = value.Replace(',', '.');
 
-                    // Пробуем разные культуры
                     if (decimal.TryParse(normalizedValue, System.Globalization.NumberStyles.Any,
                         System.Globalization.CultureInfo.InvariantCulture, out decimal decimalResult))
                         return decimalResult;
@@ -434,7 +220,6 @@ namespace WindowsFormsApp1
                         System.Globalization.CultureInfo.CurrentCulture, out decimalResult))
                         return decimalResult;
 
-                    LogError($"Не удалось преобразовать '{value}' в десятичное число", lineNumber);
                     return 0;
                 }
 
@@ -443,50 +228,224 @@ namespace WindowsFormsApp1
                 {
                     string lowerVal = value.ToLower().Trim();
                     if (lowerVal == "1" || lowerVal == "true" || lowerVal == "yes" ||
-                        lowerVal == "on" || lowerVal == "да" || lowerVal == "t" || lowerVal == "y")
+                        lowerVal == "on" || lowerVal == "да")
                         return true;
-
-                    if (lowerVal == "0" || lowerVal == "false" || lowerVal == "no" ||
-                        lowerVal == "off" || lowerVal == "нет" || lowerVal == "f" || lowerVal == "n")
-                        return false;
-
-                    LogError($"Не удалось преобразовать '{value}' в логическое значение", lineNumber);
                     return false;
                 }
 
                 // Типы даты и времени
                 if (columnType.Contains("date") || columnType.Contains("time") ||
-                    columnType.Contains("year") || columnType.Contains("timestamp") ||
-                    columnType.Contains("datetime"))
+                    columnType.Contains("datetime") || columnType.Contains("timestamp"))
                 {
-                    // Пробуем разные форматы дат
-                    string[] formats = {
-                "yyyy-MM-dd", "dd.MM.yyyy", "MM/dd/yyyy", "dd/MM/yyyy",
-                "yyyy-MM-dd HH:mm:ss", "dd.MM.yyyy HH:mm:ss",
-                "MM/dd/yyyy HH:mm:ss", "dd/MM/yyyy HH:mm:ss"
-            };
-
-                    if (DateTime.TryParseExact(value, formats,
-                        System.Globalization.CultureInfo.InvariantCulture,
-                        System.Globalization.DateTimeStyles.None, out DateTime dateResult))
+                    if (DateTime.TryParse(value, out DateTime dateResult))
                         return dateResult;
-
-                    if (DateTime.TryParse(value, out dateResult))
-                        return dateResult;
-
-                    LogError($"Не удалось преобразовать '{value}' в дату/время", lineNumber);
                     return DBNull.Value;
                 }
 
                 // Для всех остальных типов возвращаем как строку
                 return value;
             }
-            catch (Exception ex)
+            catch
             {
-                LogError($"Ошибка преобразования типа {columnType} для значения '{value}': {ex.Message}", lineNumber);
                 return value;
             }
         }
+
+        // ===================== СОЗДАНИЕ КЛЮЧА ДЛЯ ПРОВЕРКИ ДУБЛИКАТОВ =====================
+        private string CreateRecordKey(List<string> values, List<string> columns)
+        {
+            // Для таблицы users используем login как уникальный ключ
+            if (columns.Contains("login"))
+            {
+                int loginIndex = columns.IndexOf("login");
+                if (loginIndex >= 0 && loginIndex < values.Count)
+                    return "login_" + values[loginIndex].Trim();
+            }
+
+            // Для других таблиц можно создать составной ключ из всех полей
+            return string.Join("|", values.Select(v => v.Trim()));
+        }
+
+        // ===================== ИМПОРТ CSV =====================
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            if (comboBox1.SelectedItem == null)
+            {
+                MessageBox.Show("Выберите таблицу");
+                return;
+            }
+
+            if (!File.Exists(textBox1.Text))
+            {
+                MessageBox.Show("CSV файл не найден");
+                return;
+            }
+
+            string table = comboBox1.SelectedItem.ToString();
+            string file = textBox1.Text;
+            int inserted = 0;
+            int skipped = 0;
+            int errors = 0;
+
+            try
+            {
+                // Столбцы из БД (без id)
+                var dbColumns = GetColumnsWithoutId(table);
+                var columnTypes = GetColumnTypes(table);
+
+                if (dbColumns.Count == 0)
+                {
+                    MessageBox.Show("Не удалось получить столбцы таблицы");
+                    return;
+                }
+
+                // Читаем файл
+                var allLines = File.ReadAllLines(file, Encoding.UTF8);
+
+                if (allLines.Length < 2)
+                {
+                    MessageBox.Show("CSV файл пуст или содержит только заголовок");
+                    return;
+                }
+
+                // Определяем разделитель
+                char delimiter = DetectDelimiter(allLines[0]);
+
+                // Парсим заголовок
+                var csvHeaders = ParseCsvLine(allLines[0], delimiter);
+
+                // Проверяем количество столбцов
+                if (csvHeaders.Count != dbColumns.Count)
+                {
+                    string errorMsg = $"Несовпадение столбцов!\n\n" +
+                        $"CSV файл: {csvHeaders.Count} столбцов ({string.Join(", ", csvHeaders)})\n\n" +
+                        $"Таблица '{table}': {dbColumns.Count} столбцов ({string.Join(", ", dbColumns)})";
+
+                    MessageBox.Show(errorMsg, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Получаем существующие записи из БД для проверки дубликатов
+                HashSet<string> existingRecords = new HashSet<string>();
+
+                using (MySqlConnection conn = DbConfig.GetConnection())
+                {
+                    conn.Open();
+
+                    // Для users используем login как уникальный ключ
+                    if (table.ToLower() == "users" && dbColumns.Contains("login"))
+                    {
+                        string selectQuery = "SELECT login FROM users";
+                        MySqlCommand selectCmd = new MySqlCommand(selectQuery, conn);
+                        MySqlDataReader reader = selectCmd.ExecuteReader();
+
+                        while (reader.Read())
+                        {
+                            string login = reader["login"]?.ToString() ?? "";
+                            if (!string.IsNullOrEmpty(login))
+                                existingRecords.Add("login_" + login);
+                        }
+                        reader.Close();
+                    }
+                    else
+                    {
+                        // Для других таблиц получаем все данные для сравнения
+                        string selectQuery = $"SELECT {string.Join(",", dbColumns.Select(c => $"`{c}`"))} FROM `{table}`";
+                        MySqlCommand selectCmd = new MySqlCommand(selectQuery, conn);
+                        MySqlDataReader reader = selectCmd.ExecuteReader();
+
+                        while (reader.Read())
+                        {
+                            List<string> rowValues = new List<string>();
+                            for (int i = 0; i < dbColumns.Count; i++)
+                            {
+                                rowValues.Add(reader[i]?.ToString() ?? "");
+                            }
+                            existingRecords.Add(string.Join("|", rowValues));
+                        }
+                        reader.Close();
+                    }
+                }
+
+                // Формируем SQL запрос
+                string columnList = string.Join(",", dbColumns.Select(c => $"`{c}`"));
+                string paramList = string.Join(",", dbColumns.Select(c => "@" + c));
+                string query = $"INSERT INTO `{table}` ({columnList}) VALUES ({paramList})";
+
+                using (MySqlConnection conn = DbConfig.GetConnection())
+                {
+                    conn.Open();
+
+                    // Построчный импорт
+                    for (int lineIndex = 1; lineIndex < allLines.Length; lineIndex++)
+                    {
+                        string line = allLines[lineIndex].Trim();
+
+                        if (string.IsNullOrEmpty(line))
+                            continue;
+
+                        try
+                        {
+                            var values = ParseCsvLine(line, delimiter);
+
+                            if (values.Count != dbColumns.Count)
+                            {
+                                errors++;
+                                continue;
+                            }
+
+                            // Создаем ключ для проверки дубликата
+                            string recordKey = CreateRecordKey(values, dbColumns);
+
+                            // Проверяем, существует ли уже такая запись
+                            if (existingRecords.Contains(recordKey))
+                            {
+                                skipped++;
+                                continue;
+                            }
+
+                            using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                            {
+                                for (int i = 0; i < dbColumns.Count; i++)
+                                {
+                                    string columnName = dbColumns[i];
+                                    string stringValue = values[i].Trim();
+                                    string columnType = columnTypes.ContainsKey(columnName)
+                                        ? columnTypes[columnName].ToLower()
+                                        : "string";
+
+                                    object convertedValue = ConvertValueByType(stringValue, columnType);
+                                    cmd.Parameters.AddWithValue("@" + columnName, convertedValue ?? DBNull.Value);
+                                }
+
+                                cmd.ExecuteNonQuery();
+                                inserted++;
+
+                                // Добавляем новую запись в HashSet, чтобы не проверять её снова
+                                existingRecords.Add(recordKey);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            errors++;
+                        }
+                    }
+                }
+
+                string result = $"Импорт завершён!\n\n" +
+                               $"Добавлено новых записей: {inserted}\n" +
+                               $"Пропущено (уже существуют): {skipped}\n" +
+                               $"Ошибок: {errors}";
+
+                MessageBox.Show(result, "Результат", MessageBoxButtons.OK,
+                    errors > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка импорта:\n" + ex.Message);
+            }
+        }
+
         private void vosstan_Load(object sender, EventArgs e)
         {
             LoadTables();
@@ -494,13 +453,17 @@ namespace WindowsFormsApp1
 
         private void button3_Click(object sender, EventArgs e)
         {
-            A authForm = new A(); // предполагаем, что класс формы авторизации называется A
-            for (double opacity = 1.0; opacity > 0; opacity -= 0.24) // было 0.05
+            // Плавное закрытие с возвратом на форму A
+            for (double opacity = 1.0; opacity > 0; opacity -= 0.24)
             {
                 this.Opacity = opacity;
                 Application.DoEvents();
-                System.Threading.Thread.Sleep(7); // было 20
+                System.Threading.Thread.Sleep(7);
             }
+
+            A authForm = new A();
+            authForm.Show();
+            this.Close();
         }
     }
 }

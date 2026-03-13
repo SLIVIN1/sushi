@@ -111,8 +111,17 @@ namespace WindowsFormsApp1
 
         private void SetupAccess()
         {
-            if (Session.CurrentRole != 1)
+            if (Session.CurrentRole == 1)
             {
+                comboBox1.Visible = true;
+                button4.Visible = true;
+                label5.Visible = true;
+                button1.Visible = false; // администратор тоже может печатать чеки
+            }
+            // Менеджер (id=3) - видит только кнопку печати чека
+            else if (Session.CurrentRole == 3)
+            {
+                button1.Visible = true;
                 comboBox1.Visible = false;
                 button4.Visible = false;
                 label5.Visible = false;
