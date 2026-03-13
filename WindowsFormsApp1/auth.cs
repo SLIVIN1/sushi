@@ -40,7 +40,7 @@ namespace WindowsFormsApp1
         {
             txtLogin.Focus();
             txtPassword.UseSystemPasswordChar = true;
-
+            InactivityManager.Stop();
             HideCaptcha();
             SetLoginControlsEnabled(true);
             txtLogin.Text = AuthState.LoginText;
@@ -265,6 +265,7 @@ namespace WindowsFormsApp1
                     return;
             }
 
+            InactivityManager.Start();
 
             for (double opacity = 1.0; opacity > 0; opacity -= 0.24) // было 0.05
             {
