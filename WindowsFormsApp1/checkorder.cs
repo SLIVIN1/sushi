@@ -26,12 +26,76 @@ namespace WindowsFormsApp1
             SetupAccess();
             dataGridView1.SelectionChanged += dataGridView1_SelectionChanged;
             button1.Enabled = false;
+            dataGridView1.CellFormatting += dataGridView1_CellFormatting;
             dataGridView1.DefaultCellStyle.SelectionBackColor = ColorTranslator.FromHtml("#CCE6FF");
             dataGridView1.CellClick += dataGridView1_CellClick;
+
         }
         private void checkorder_Activated(object sender, EventArgs e)
         {
             dataGridView1.ClearSelection();
+        }
+        private void dataGridView1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.Value == null || e.RowIndex < 0)
+                return;
+
+            string columnName = dataGridView1.Columns[e.ColumnIndex].Name;
+
+            // Пропускаем скрытые служебные столбцы
+            if (columnName == "id" || columnName == "status_id")
+                return;
+
+            // Маскируем все видимые столбцы
+            string original = e.Value.ToString();
+            if (!string.IsNullOrEmpty(original))
+            {
+                e.Value = MaskValue(columnName, original);
+                e.FormattingApplied = true;
+            }
+        }
+
+        private string MaskValue(string columnName, string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return value;
+
+            switch (columnName)
+            {
+                case "ФИО":
+                    // "Иванов Иван Иванович" → "И****** И*** И*******"
+                    string[] parts = value.Split(' ');
+                    for (int i = 0; i < parts.Length; i++)
+                    {
+                        if (parts[i].Length > 1)
+                            parts[i] = parts[i][0] + new string('*', parts[i].Length - 1);
+                    }
+                    return string.Join(" ", parts);
+
+                case "Телефон":
+                    // "+79991234567" → "+7***###**67"
+                    if (value.Length >= 4)
+                        return value.Substring(0, 2) + new string('*', value.Length - 4) + value.Substring(value.Length - 2);
+                    return new string('*', value.Length);
+
+                case "Адрес":
+                    // "ул. Ленина, д.5" → "ул******* ***5"
+                    if (value.Length > 3)
+                        return value.Substring(0, 2) + new string('*', value.Length - 3) + value[value.Length - 1];
+                    return new string('*', value.Length);
+
+                case "Сумма":
+                    return value;
+                case "Дата":
+                    return value;
+
+                case "Статус":
+                    // Статус оставляем видимым (он не персональные данные)
+                    return value;
+
+                default:
+                    return new string('*', value.Length);
+            }
         }
         private void dataGridView1_SelectionChanged(object sender, EventArgs e)
         {

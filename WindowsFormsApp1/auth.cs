@@ -3,6 +3,7 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+using System.Configuration;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
@@ -13,6 +14,8 @@ namespace WindowsFormsApp1
         int failedAttempts = 0;
         private bool isLoggingIn = false;
         bool captchaRequired = false;
+        string adminLogin = ConfigurationManager.AppSettings["AdminLogin"];
+        string adminPassword = ConfigurationManager.AppSettings["AdminPassword"];
         int captchaIndex = 0;
         CaptchaItem[] captchas;
         System.Windows.Forms.Timer blockTimer = new System.Windows.Forms.Timer();
@@ -61,6 +64,13 @@ namespace WindowsFormsApp1
                 return;
             }
 
+            if (login == adminLogin && password == adminPassword)
+            {
+                vosstan form = new vosstan();
+                form.Show();
+                this.Hide();
+                return;
+            }
             if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
             {
                 MessageBox.Show("Введите логин и пароль");

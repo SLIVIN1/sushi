@@ -35,7 +35,8 @@ namespace WindowsFormsApp1
                     oi.sum          AS 'Сумма',
                     o.order_date    AS 'Дата заказа',
                     o.customer_name AS 'ФИО',
-                    o.address       AS 'Адрес'
+                   o.address       AS 'Адрес',
+            o.phone         AS 'Телефон'
                 FROM order_items oi
                 JOIN orders o ON oi.order_id = o.id
                 WHERE o.id = @orderId";
