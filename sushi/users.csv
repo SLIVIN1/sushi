@@ -1,8 +1,8 @@
 full_name,role_id,login,password_hash
-"""Директор Ресторана"",2,director,6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
-"""Менеджер Петров"",3,manager,6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
-"""Продавец Иванова"",3,seller1,6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
-"""Ванечкин Олег Иванович"",3,manager2,e0bc614e4fd035a488619799853b075143deea596c477b8dc077e309c0fe42e9"
-"""Илья Алекснадрович"",1,ivan,6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
-"""Директор Василий"",1,vas,6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
-"""Кирилл Сливин"",1,admin1,6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+ Директор Ресторана ,2,director,6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b
+ Менеджер Петров ,3,manager,6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b
+ Продавец Иванова ,3,seller1,6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b
+ Ванечкин Олег Иванович ,3,manager2,e0bc614e4fd035a488619799853b075143deea596c477b8dc077e309c0fe42e9
+ Илья Алекснадрович ,1,ivan,6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b
+ Директор Василий ,1,vas,6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b
+ Кирилл Сливин ,1,admin1,6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b
