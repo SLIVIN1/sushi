@@ -32,6 +32,7 @@ namespace WindowsFormsApp1
             textBox1.TextChanged += TextBoxSearch_TextChanged;
             comboBox1.SelectedIndexChanged += FilterChanged;
             comboBox2.SelectedIndexChanged += FilterChanged;
+            dataGridView1.Font = new Font("Times New Roman", 14F, FontStyle.Regular);
 
             this.Activated += productmanag_Activated;
             dataGridView1.DefaultCellStyle.SelectionBackColor = ColorTranslator.FromHtml("#CCE6FF");

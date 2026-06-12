@@ -42,24 +42,24 @@ namespace WindowsFormsApp1
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label1.ForeColor = System.Drawing.Color.Green;
             this.label1.Location = new System.Drawing.Point(14, 21);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(256, 29);
+            this.label1.Size = new System.Drawing.Size(172, 21);
             this.label1.TabIndex = 1;
             this.label1.Text = "Здраствуйте {ФИО}";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label2.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label2.ForeColor = System.Drawing.Color.Green;
-            this.label2.Location = new System.Drawing.Point(124, 91);
+            this.label2.Location = new System.Drawing.Point(124, 67);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(171, 20);
+            this.label2.Size = new System.Drawing.Size(183, 21);
             this.label2.TabIndex = 11;
             this.label2.Text = "Вы вошли под ролью";
             // 
@@ -67,12 +67,12 @@ namespace WindowsFormsApp1
             // 
             this.label3.AutoSize = true;
             this.label3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(244)))), ((int)(((byte)(245)))));
-            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label3.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label3.ForeColor = System.Drawing.Color.Green;
-            this.label3.Location = new System.Drawing.Point(318, 91);
+            this.label3.Location = new System.Drawing.Point(315, 67);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(56, 20);
+            this.label3.Size = new System.Drawing.Size(66, 21);
             this.label3.TabIndex = 12;
             this.label3.Text = "{роль}";
             // 
@@ -80,7 +80,8 @@ namespace WindowsFormsApp1
             // 
             this.button4.BackColor = System.Drawing.Color.White;
             this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button4.Location = new System.Drawing.Point(128, 165);
+            this.button4.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button4.Location = new System.Drawing.Point(128, 116);
             this.button4.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(341, 72);
@@ -93,7 +94,8 @@ namespace WindowsFormsApp1
             // 
             this.button1.BackColor = System.Drawing.Color.White;
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button1.Location = new System.Drawing.Point(128, 264);
+            this.button1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button1.Location = new System.Drawing.Point(128, 215);
             this.button1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(341, 72);
@@ -106,7 +108,8 @@ namespace WindowsFormsApp1
             // 
             this.button2.BackColor = System.Drawing.Color.White;
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button2.Location = new System.Drawing.Point(128, 365);
+            this.button2.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button2.Location = new System.Drawing.Point(128, 316);
             this.button2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(341, 72);
@@ -119,10 +122,11 @@ namespace WindowsFormsApp1
             // 
             this.button5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(76)))), ((int)(((byte)(60)))));
             this.button5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button5.Location = new System.Drawing.Point(173, 462);
+            this.button5.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button5.Location = new System.Drawing.Point(128, 453);
             this.button5.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(251, 52);
+            this.button5.Size = new System.Drawing.Size(341, 72);
             this.button5.TabIndex = 16;
             this.button5.Text = "Назад";
             this.button5.UseVisualStyleBackColor = false;
@@ -149,7 +153,7 @@ namespace WindowsFormsApp1
             this.MinimizeBox = false;
             this.Name = "mainmanag";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "ФормаМенеджера";
+            this.Text = "Главное меню менеджера";
             this.Load += new System.EventHandler(this.mainmanag_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

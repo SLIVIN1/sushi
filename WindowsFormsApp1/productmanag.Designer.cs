@@ -51,10 +51,11 @@ namespace WindowsFormsApp1
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(18, 10);
+            this.label1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label1.Location = new System.Drawing.Point(16, 5);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(118, 15);
+            this.label1.Size = new System.Drawing.Size(161, 21);
             this.label1.TabIndex = 0;
             this.label1.Text = "Просмотр товаров";
             // 
@@ -72,36 +73,39 @@ namespace WindowsFormsApp1
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
             this.dataGridView1.RowHeadersVisible = false;
-            this.dataGridView1.Size = new System.Drawing.Size(593, 322);
+            this.dataGridView1.Size = new System.Drawing.Size(709, 330);
             this.dataGridView1.TabIndex = 1;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(442, 387);
+            this.label2.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label2.Location = new System.Drawing.Point(475, 408);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(161, 15);
+            this.label2.Size = new System.Drawing.Size(217, 21);
             this.label2.TabIndex = 2;
             this.label2.Text = "Фильтрация по категории";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(10, 387);
+            this.label3.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label3.Location = new System.Drawing.Point(8, 408);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(119, 15);
+            this.label3.Size = new System.Drawing.Size(168, 21);
             this.label3.TabIndex = 2;
             this.label3.Text = "Поиск по названию";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(258, 387);
+            this.label4.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label4.Location = new System.Drawing.Point(256, 408);
             this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(125, 15);
+            this.label4.Size = new System.Drawing.Size(173, 21);
             this.label4.TabIndex = 2;
             this.label4.Text = "Сортировка по цене";
             // 
@@ -109,10 +113,11 @@ namespace WindowsFormsApp1
             // 
             this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button1.Location = new System.Drawing.Point(140, 467);
+            this.button1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button1.Location = new System.Drawing.Point(161, 504);
             this.button1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(149, 38);
+            this.button1.Size = new System.Drawing.Size(195, 38);
             this.button1.TabIndex = 3;
             this.button1.Text = "Сбросить фильтр";
             this.button1.UseVisualStyleBackColor = false;
@@ -122,12 +127,13 @@ namespace WindowsFormsApp1
             // 
             this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(76)))), ((int)(((byte)(60)))));
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button2.Location = new System.Drawing.Point(509, 467);
+            this.button2.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button2.Location = new System.Drawing.Point(517, 519);
             this.button2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(107, 43);
+            this.button2.Size = new System.Drawing.Size(206, 59);
             this.button2.TabIndex = 3;
-            this.button2.Text = "назад";
+            this.button2.Text = "Назад";
             this.button2.UseVisualStyleBackColor = false;
             this.button2.Click += new System.EventHandler(this.button2_Click_1);
             // 
@@ -135,21 +141,23 @@ namespace WindowsFormsApp1
             // 
             this.comboBox1.BackColor = System.Drawing.Color.White;
             this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(442, 421);
+            this.comboBox1.Location = new System.Drawing.Point(475, 442);
             this.comboBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(140, 23);
+            this.comboBox1.Size = new System.Drawing.Size(205, 29);
             this.comboBox1.TabIndex = 4;
             // 
             // textBox1
             // 
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBox1.Location = new System.Drawing.Point(14, 421);
+            this.textBox1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.textBox1.Location = new System.Drawing.Point(12, 442);
             this.textBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.textBox1.MaxLength = 20;
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(185, 21);
+            this.textBox1.Size = new System.Drawing.Size(185, 29);
             this.textBox1.TabIndex = 5;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
@@ -157,16 +165,18 @@ namespace WindowsFormsApp1
             // 
             this.comboBox2.BackColor = System.Drawing.Color.White;
             this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox2.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(261, 421);
+            this.comboBox2.Location = new System.Drawing.Point(259, 442);
             this.comboBox2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(140, 23);
+            this.comboBox2.Size = new System.Drawing.Size(170, 29);
             this.comboBox2.TabIndex = 6;
             // 
             // flowLayoutPanelPages
             // 
-            this.flowLayoutPanelPages.Location = new System.Drawing.Point(433, 357);
+            this.flowLayoutPanelPages.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.flowLayoutPanelPages.Location = new System.Drawing.Point(412, 365);
             this.flowLayoutPanelPages.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.flowLayoutPanelPages.Name = "flowLayoutPanelPages";
             this.flowLayoutPanelPages.Size = new System.Drawing.Size(150, 27);
@@ -184,7 +194,8 @@ namespace WindowsFormsApp1
             // 
             // buttonNext
             // 
-            this.buttonNext.Location = new System.Drawing.Point(384, 357);
+            this.buttonNext.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.buttonNext.Location = new System.Drawing.Point(363, 365);
             this.buttonNext.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.buttonNext.Name = "buttonNext";
             this.buttonNext.Size = new System.Drawing.Size(40, 27);
@@ -194,7 +205,8 @@ namespace WindowsFormsApp1
             // 
             // buttonPrev
             // 
-            this.buttonPrev.Location = new System.Drawing.Point(342, 357);
+            this.buttonPrev.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.buttonPrev.Location = new System.Drawing.Point(321, 365);
             this.buttonPrev.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.buttonPrev.Name = "buttonPrev";
             this.buttonPrev.Size = new System.Drawing.Size(35, 27);
@@ -205,10 +217,11 @@ namespace WindowsFormsApp1
             // labelPage
             // 
             this.labelPage.AutoSize = true;
-            this.labelPage.Location = new System.Drawing.Point(18, 362);
+            this.labelPage.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.labelPage.Location = new System.Drawing.Point(618, 368);
             this.labelPage.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelPage.Name = "labelPage";
-            this.labelPage.Size = new System.Drawing.Size(41, 15);
+            this.labelPage.Size = new System.Drawing.Size(53, 21);
             this.labelPage.TabIndex = 40;
             this.labelPage.Text = "label7";
             // 
@@ -217,7 +230,7 @@ namespace WindowsFormsApp1
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(244)))), ((int)(((byte)(245)))));
-            this.ClientSize = new System.Drawing.Size(630, 519);
+            this.ClientSize = new System.Drawing.Size(736, 590);
             this.Controls.Add(this.labelPage);
             this.Controls.Add(this.flowLayoutPanelPages);
             this.Controls.Add(this.labelPageInfo);
@@ -241,7 +254,7 @@ namespace WindowsFormsApp1
             this.MinimizeBox = false;
             this.Name = "productmanag";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "ПросмотрТоваров";
+            this.Text = "Просмотр Товаров";
             this.Load += new System.EventHandler(this.productmanag_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);

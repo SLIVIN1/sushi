@@ -48,10 +48,11 @@ namespace WindowsFormsApp1
             // label1
             // 
             this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label1.Location = new System.Drawing.Point(31, 10);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(51, 15);
+            this.label1.Size = new System.Drawing.Size(71, 21);
             this.label1.TabIndex = 0;
             this.label1.Text = "Товары";
             // 
@@ -78,10 +79,11 @@ namespace WindowsFormsApp1
             // 
             this.button5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(76)))), ((int)(((byte)(60)))));
             this.button5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button5.Location = new System.Drawing.Point(706, 621);
+            this.button5.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button5.Location = new System.Drawing.Point(724, 567);
             this.button5.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(214, 43);
+            this.button5.Size = new System.Drawing.Size(206, 57);
             this.button5.TabIndex = 25;
             this.button5.Text = "Назад";
             this.button5.UseVisualStyleBackColor = false;
@@ -91,7 +93,8 @@ namespace WindowsFormsApp1
             // 
             this.button3.BackColor = System.Drawing.Color.White;
             this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button3.Location = new System.Drawing.Point(542, 501);
+            this.button3.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button3.Location = new System.Drawing.Point(542, 505);
             this.button3.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(177, 43);
@@ -104,7 +107,8 @@ namespace WindowsFormsApp1
             // 
             this.button1.BackColor = System.Drawing.Color.White;
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button1.Location = new System.Drawing.Point(61, 501);
+            this.button1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button1.Location = new System.Drawing.Point(50, 505);
             this.button1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(177, 43);
@@ -115,7 +119,7 @@ namespace WindowsFormsApp1
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Location = new System.Drawing.Point(542, 501);
+            this.pictureBox1.Location = new System.Drawing.Point(555, 530);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(28, 18);
@@ -125,7 +129,8 @@ namespace WindowsFormsApp1
             // 
             // buttonPrev
             // 
-            this.buttonPrev.Location = new System.Drawing.Point(596, 447);
+            this.buttonPrev.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.buttonPrev.Location = new System.Drawing.Point(433, 447);
             this.buttonPrev.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.buttonPrev.Name = "buttonPrev";
             this.buttonPrev.Size = new System.Drawing.Size(35, 27);
@@ -135,7 +140,8 @@ namespace WindowsFormsApp1
             // 
             // buttonNext
             // 
-            this.buttonNext.Location = new System.Drawing.Point(638, 447);
+            this.buttonNext.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.buttonNext.Location = new System.Drawing.Point(476, 447);
             this.buttonNext.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.buttonNext.Name = "buttonNext";
             this.buttonNext.Size = new System.Drawing.Size(40, 27);
@@ -146,16 +152,18 @@ namespace WindowsFormsApp1
             // labelPageInfo
             // 
             this.labelPageInfo.AutoSize = true;
-            this.labelPageInfo.Location = new System.Drawing.Point(47, 453);
+            this.labelPageInfo.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.labelPageInfo.Location = new System.Drawing.Point(744, 450);
             this.labelPageInfo.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelPageInfo.Name = "labelPageInfo";
-            this.labelPageInfo.Size = new System.Drawing.Size(41, 15);
+            this.labelPageInfo.Size = new System.Drawing.Size(53, 21);
             this.labelPageInfo.TabIndex = 34;
             this.labelPageInfo.Text = "label7";
             // 
             // flowLayoutPanelPages
             // 
-            this.flowLayoutPanelPages.Location = new System.Drawing.Point(687, 447);
+            this.flowLayoutPanelPages.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.flowLayoutPanelPages.Location = new System.Drawing.Point(542, 447);
             this.flowLayoutPanelPages.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.flowLayoutPanelPages.Name = "flowLayoutPanelPages";
             this.flowLayoutPanelPages.Size = new System.Drawing.Size(150, 27);
@@ -165,7 +173,8 @@ namespace WindowsFormsApp1
             // 
             this.button2.BackColor = System.Drawing.Color.White;
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button2.Location = new System.Drawing.Point(315, 501);
+            this.button2.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button2.Location = new System.Drawing.Point(303, 505);
             this.button2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(177, 43);
@@ -179,7 +188,7 @@ namespace WindowsFormsApp1
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(244)))), ((int)(((byte)(245)))));
-            this.ClientSize = new System.Drawing.Size(933, 677);
+            this.ClientSize = new System.Drawing.Size(933, 622);
             this.Controls.Add(this.flowLayoutPanelPages);
             this.Controls.Add(this.labelPageInfo);
             this.Controls.Add(this.buttonNext);
@@ -199,7 +208,7 @@ namespace WindowsFormsApp1
             this.MinimizeBox = false;
             this.Name = "productadmin";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "РедактированиеТоваров";
+            this.Text = "Просмотр товаров";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);

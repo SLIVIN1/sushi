@@ -15,6 +15,7 @@ namespace WindowsFormsApp1
             InitializeComponent();
             this.orderId = orderId;
             this.Activated += podrobno_Activated;
+            dataGridView1.Font = new Font("Times New Roman", 14F, FontStyle.Regular);
             dataGridView1.DefaultCellStyle.SelectionBackColor = ColorTranslator.FromHtml("#CCE6FF");
             LoadOrder();
         }
@@ -109,7 +110,6 @@ WHERE o.id = @orderId";
 
             // 🔹 вывод в label
             label1.Text = $"Общая сумма: {totalSum:F2} ₽";
-            label2.Text = $"Скидка (15%): {discount:F2} ₽";
             label3.Text = $"Итого к оплате: {finalSum:F2} ₽";
         }
 

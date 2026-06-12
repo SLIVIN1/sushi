@@ -55,7 +55,7 @@
             this.button1.BackColor = System.Drawing.Color.White;
             this.button1.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.button1.Location = new System.Drawing.Point(10, 189);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(255, 44);
@@ -67,7 +67,7 @@
             // txtPassword
             // 
             this.txtPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.txtPassword.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.txtPassword.Location = new System.Drawing.Point(10, 136);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.Size = new System.Drawing.Size(237, 29);
@@ -77,7 +77,7 @@
             // txtLogin
             // 
             this.txtLogin.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtLogin.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.txtLogin.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.txtLogin.Location = new System.Drawing.Point(10, 46);
             this.txtLogin.Name = "txtLogin";
             this.txtLogin.Size = new System.Drawing.Size(237, 29);
@@ -87,20 +87,20 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label1.Location = new System.Drawing.Point(25, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(145, 24);
+            this.label1.Size = new System.Drawing.Size(127, 21);
             this.label1.TabIndex = 3;
             this.label1.Text = "Введите логин";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label2.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label2.Location = new System.Drawing.Point(25, 96);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(157, 24);
+            this.label2.Size = new System.Drawing.Size(136, 21);
             this.label2.TabIndex = 4;
             this.label2.Text = "Введите пароль";
             // 
@@ -108,7 +108,7 @@
             // 
             this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(76)))), ((int)(((byte)(60)))));
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button2.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.button2.Location = new System.Drawing.Point(10, 239);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(255, 42);
@@ -121,6 +121,7 @@
             // 
             this.ButtonShowPassword.BackColor = System.Drawing.Color.White;
             this.ButtonShowPassword.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.ButtonShowPassword.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.ButtonShowPassword.Location = new System.Drawing.Point(253, 136);
             this.ButtonShowPassword.Name = "ButtonShowPassword";
             this.ButtonShowPassword.Size = new System.Drawing.Size(41, 29);
@@ -133,9 +134,10 @@
             // 
             this.textBox1.BackColor = System.Drawing.Color.White;
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textBox1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.textBox1.Location = new System.Drawing.Point(85, 168);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(162, 21);
+            this.textBox1.Size = new System.Drawing.Size(162, 29);
             this.textBox1.TabIndex = 29;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
@@ -143,9 +145,10 @@
             // 
             this.button3.BackColor = System.Drawing.Color.White;
             this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button3.Location = new System.Drawing.Point(133, 194);
+            this.button3.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button3.Location = new System.Drawing.Point(107, 203);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(90, 28);
+            this.button3.Size = new System.Drawing.Size(114, 28);
             this.button3.TabIndex = 30;
             this.button3.Text = "Проверить";
             this.button3.UseVisualStyleBackColor = false;

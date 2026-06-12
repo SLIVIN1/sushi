@@ -19,6 +19,7 @@ namespace WindowsFormsApp1
             InitializeComponent();
             LoadOrders();
             LoadOrderStatuses();
+            dataGridView1.Font = new Font("Times New Roman", 14F, FontStyle.Regular);
             this.Activated += checkorder_Activated;
             SetupAccess();
             dataGridView1.SelectionChanged += dataGridView1_SelectionChanged;

@@ -44,10 +44,11 @@
             // button1
             // 
             this.button1.BackColor = System.Drawing.Color.White;
-            this.button1.Location = new System.Drawing.Point(14, 325);
+            this.button1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button1.Location = new System.Drawing.Point(88, 366);
             this.button1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(196, 58);
+            this.button1.Size = new System.Drawing.Size(206, 58);
             this.button1.TabIndex = 0;
             this.button1.Text = "Сохранить";
             this.button1.UseVisualStyleBackColor = false;
@@ -56,10 +57,11 @@
             // button2
             // 
             this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(76)))), ((int)(((byte)(60)))));
-            this.button2.Location = new System.Drawing.Point(34, 404);
+            this.button2.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button2.Location = new System.Drawing.Point(88, 440);
             this.button2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(167, 43);
+            this.button2.Size = new System.Drawing.Size(206, 64);
             this.button2.TabIndex = 1;
             this.button2.Text = "Назад";
             this.button2.UseVisualStyleBackColor = false;
@@ -68,80 +70,88 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(30, 27);
+            this.label1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label1.Location = new System.Drawing.Point(137, 18);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(77, 15);
+            this.label1.Size = new System.Drawing.Size(108, 21);
             this.label1.TabIndex = 2;
             this.label1.Text = "Адрес хоста";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(30, 100);
+            this.label2.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label2.Location = new System.Drawing.Point(111, 112);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(127, 15);
+            this.label2.Size = new System.Drawing.Size(173, 21);
             this.label2.TabIndex = 3;
             this.label2.Text = "Логин пользователя";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(30, 170);
+            this.label3.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label3.Location = new System.Drawing.Point(111, 192);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(137, 15);
+            this.label3.Size = new System.Drawing.Size(181, 21);
             this.label3.TabIndex = 4;
             this.label3.Text = "Пароль пользователя";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(30, 241);
+            this.label4.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label4.Location = new System.Drawing.Point(135, 276);
             this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(81, 15);
+            this.label4.Size = new System.Drawing.Size(110, 21);
             this.label4.TabIndex = 5;
             this.label4.Text = "База данных";
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(34, 46);
+            this.textBox1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.textBox1.Location = new System.Drawing.Point(67, 63);
             this.textBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.textBox1.MaxLength = 20;
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(172, 21);
+            this.textBox1.Size = new System.Drawing.Size(256, 29);
             this.textBox1.TabIndex = 6;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // textBox2
             // 
-            this.textBox2.Location = new System.Drawing.Point(34, 119);
+            this.textBox2.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.textBox2.Location = new System.Drawing.Point(67, 148);
             this.textBox2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.textBox2.MaxLength = 10;
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(172, 21);
+            this.textBox2.Size = new System.Drawing.Size(256, 29);
             this.textBox2.TabIndex = 7;
             this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             // 
             // textBox3
             // 
-            this.textBox3.Location = new System.Drawing.Point(34, 188);
+            this.textBox3.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.textBox3.Location = new System.Drawing.Point(68, 228);
             this.textBox3.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.textBox3.MaxLength = 10;
             this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(172, 21);
+            this.textBox3.Size = new System.Drawing.Size(256, 29);
             this.textBox3.TabIndex = 8;
             this.textBox3.TextChanged += new System.EventHandler(this.textBox3_TextChanged);
             // 
             // textBox4
             // 
-            this.textBox4.Location = new System.Drawing.Point(34, 260);
+            this.textBox4.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.textBox4.Location = new System.Drawing.Point(68, 316);
             this.textBox4.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.textBox4.MaxLength = 10;
             this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(172, 21);
+            this.textBox4.Size = new System.Drawing.Size(256, 29);
             this.textBox4.TabIndex = 9;
             this.textBox4.TextChanged += new System.EventHandler(this.textBox4_TextChanged);
             // 
@@ -150,7 +160,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(244)))), ((int)(((byte)(245)))));
-            this.ClientSize = new System.Drawing.Size(236, 457);
+            this.ClientSize = new System.Drawing.Size(397, 526);
             this.Controls.Add(this.textBox4);
             this.Controls.Add(this.textBox3);
             this.Controls.Add(this.textBox2);
@@ -168,7 +178,7 @@
             this.MinimizeBox = false;
             this.Name = "setting";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Настройки";
+            this.Text = "Настройки подключения";
             this.Load += new System.EventHandler(this.setting_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

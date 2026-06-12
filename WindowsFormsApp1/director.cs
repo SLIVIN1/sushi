@@ -20,7 +20,7 @@ namespace WindowsFormsApp1
             InitializeComboBoxes();
             SetupDataGridView();
             this.Activated += director_Activated;
-
+            dataGridView1.Font = new Font("Times New Roman", 14F, FontStyle.Regular);
             dateTimePicker1.Value = DirectorState.DateFrom;
             dateTimePicker2.Value = DirectorState.DateTo;
             textBox1.Text = DirectorState.OrderId;

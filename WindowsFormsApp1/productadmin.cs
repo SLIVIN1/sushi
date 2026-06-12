@@ -33,7 +33,7 @@ namespace WindowsFormsApp1
             InitializePagination();
             this.Activated += productadmin_Activated;
             dataGridView1.DefaultCellStyle.SelectionBackColor = ColorTranslator.FromHtml("#B3D9FF");
-
+            dataGridView1.Font = new Font("Times New Roman", 14F, FontStyle.Regular);
             appFolderPath = Path.Combine(Application.StartupPath, "ProductImages");
             if (!Directory.Exists(appFolderPath))
                 Directory.CreateDirectory(appFolderPath);

@@ -21,6 +21,7 @@ namespace WindowsFormsApp1
             LoadRoles();
             LoadUsers();
             this.Activated += useradmin_Activated;
+            dataGridView1.Font = new Font("Times New Roman", 14F, FontStyle.Regular);
             dataGridView1.DefaultCellStyle.SelectionBackColor = ColorTranslator.FromHtml("#CCE6FF");
             dataGridView1.CellClick += dataGridView1_CellClick;
             textBox2.UseSystemPasswordChar = true; // Скрываем символами *

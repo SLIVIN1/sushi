@@ -12,6 +12,12 @@ namespace WindowsFormsApp1
     public partial class addedit : Form
     {
         private string appFolderPath;
+        private string initialArticle = "";
+        private string initialName = "";
+        private string initialDescription = "";
+        private string initialPrice = "";
+        private string initialCategory = "";
+        private string initialImagePath = "";
         private int currentProductId = 0;
         private string currentImagePath = "";
         private bool isEditMode = false;
@@ -23,6 +29,7 @@ namespace WindowsFormsApp1
             InitializeComponent();
             isEditMode = false;
             currentProductId = 0;
+            StoreInitialState(); // 🔥 запоминаем пустое состояние
             InitializeForm();
             this.Text = "Добавление товара";
             button1.Text = "Добавить";
@@ -41,10 +48,31 @@ namespace WindowsFormsApp1
             button1.Visible = false;
             button2.Text = "Изменить";
             button2.Visible = true;
-
+            StoreInitialState(); // 🔥 запоминаем пустое состояние
             LoadProductData(productId);
         }
+        // Метод для запоминания начального состояния
+        private void StoreInitialState()
+        {
+            initialArticle = textBox1.Text;
+            initialName = textBox2.Text;
+            initialDescription = textBox3.Text;
+            initialPrice = textBox4.Text;
+            initialCategory = comboBox1.Text;
+            initialImagePath = currentImagePath;
+        }
 
+        // Проверяет, были ли изменения
+        private bool HasUnsavedChanges()
+        {
+            return textBox1.Text != initialArticle
+                || textBox2.Text != initialName
+                || textBox3.Text != initialDescription
+                || textBox4.Text != initialPrice
+                || comboBox1.Text != initialCategory
+                || currentImagePath != initialImagePath
+                || !string.IsNullOrEmpty(selectedImageFilePath);
+        }
         private void InitializeForm()
         {
             textBox1.KeyPress += textBox1_KeyPress;
@@ -968,6 +996,33 @@ namespace WindowsFormsApp1
             }
         }
 
-       
+        private void button7_Click(object sender, EventArgs e)
+        {
+            if (HasUnsavedChanges())
+            {
+                DialogResult result = MessageBox.Show(
+                    "В форме есть несохранённые изменения.\n\n" +
+                    "Вы уверены, что хотите закрыть форму без сохранения?",
+                    "Отмена изменений",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    // Освобождаем изображение из PictureBox
+                    if (pictureBox1.Image != null)
+                    {
+                        pictureBox1.Image.Dispose();
+                        pictureBox1.Image = null;
+                    }
+                    this.Close();
+                }
+            }
+            else
+            {
+                // Изменений нет — просто закрываем
+                this.Close();
+            }
+        }
     }
 }

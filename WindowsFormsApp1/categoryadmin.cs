@@ -19,6 +19,7 @@ namespace WindowsFormsApp1
         {
             InitializeComponent();
             LoadCategories();
+            dataGridView1.Font = new Font("Times New Roman", 14F, FontStyle.Regular);
             this.Activated += categoryadmin_Activated;
             dataGridView1.CellClick += dataGridView1_CellClick;
             textBox1.TextChanged += textBox1_TextChanged;

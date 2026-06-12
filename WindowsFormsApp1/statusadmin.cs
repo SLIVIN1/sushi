@@ -18,6 +18,7 @@ namespace WindowsFormsApp1
             this.Activated += statusadmin_Activated;
             dataGridView1.CellClick += dataGridView1_CellClick;
             textBox1.TextChanged += textBox1_TextChanged_1;
+            dataGridView1.Font = new Font("Times New Roman", 14F, FontStyle.Regular);
             dataGridView1.DefaultCellStyle.SelectionBackColor = ColorTranslator.FromHtml("#CCE6FF");
 
         }

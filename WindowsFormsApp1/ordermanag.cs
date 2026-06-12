@@ -36,6 +36,8 @@ namespace WindowsFormsApp1
             button4.Enabled = false;
             numericUpDown1.Minimum = 1;
             numericUpDown1.Value = 1;
+            dataGridView1.Font = new Font("Times New Roman", 14F, FontStyle.Regular);
+            dataGridView2.Font = new Font("Times New Roman", 14F, FontStyle.Regular);
 
             // ДОБАВЬТЕ ЭТУ СТРОКУ:
             maskedTextBox2.KeyPress += maskedTextBox2_KeyPress;
@@ -204,7 +206,6 @@ namespace WindowsFormsApp1
             decimal final = total - discount;
 
             label9.Text = $"Сумма: {total} ₽";
-            label10.Text = $"Скидка: {discount} ₽";
             label12.Text = $"Итого: {final} ₽";
         }
 
@@ -686,5 +687,6 @@ namespace WindowsFormsApp1
             }
         }
 
+       
     }
 }

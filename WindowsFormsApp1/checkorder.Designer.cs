@@ -44,10 +44,11 @@ namespace WindowsFormsApp1
             // label1
             // 
             this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label1.Location = new System.Drawing.Point(14, 10);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(115, 15);
+            this.label1.Size = new System.Drawing.Size(157, 21);
             this.label1.TabIndex = 0;
             this.label1.Text = "Просмотр заказов";
             // 
@@ -71,10 +72,11 @@ namespace WindowsFormsApp1
             // 
             this.button3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(76)))), ((int)(((byte)(60)))));
             this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button3.Location = new System.Drawing.Point(495, 487);
+            this.button3.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button3.Location = new System.Drawing.Point(517, 473);
             this.button3.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(224, 33);
+            this.button3.Size = new System.Drawing.Size(206, 57);
             this.button3.TabIndex = 2;
             this.button3.Text = "Назад";
             this.button3.UseVisualStyleBackColor = false;
@@ -84,10 +86,11 @@ namespace WindowsFormsApp1
             // 
             this.button1.BackColor = System.Drawing.Color.White;
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button1.Location = new System.Drawing.Point(195, 444);
+            this.button1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button1.Location = new System.Drawing.Point(191, 446);
             this.button1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(161, 66);
+            this.button1.Size = new System.Drawing.Size(185, 66);
             this.button1.TabIndex = 4;
             this.button1.Text = "Сформировать чек";
             this.button1.UseVisualStyleBackColor = false;
@@ -96,10 +99,11 @@ namespace WindowsFormsApp1
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(370, 370);
+            this.label5.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label5.Location = new System.Drawing.Point(380, 370);
             this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(107, 15);
+            this.label5.Size = new System.Drawing.Size(144, 21);
             this.label5.TabIndex = 3;
             this.label5.Text = "Изменить статус";
             // 
@@ -107,21 +111,23 @@ namespace WindowsFormsApp1
             // 
             this.comboBox1.BackColor = System.Drawing.Color.White;
             this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(373, 391);
+            this.comboBox1.Location = new System.Drawing.Point(383, 391);
             this.comboBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(148, 23);
+            this.comboBox1.Size = new System.Drawing.Size(148, 29);
             this.comboBox1.TabIndex = 5;
             // 
             // button2
             // 
             this.button2.BackColor = System.Drawing.Color.White;
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button2.Location = new System.Drawing.Point(14, 375);
+            this.button2.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button2.Location = new System.Drawing.Point(18, 377);
             this.button2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(148, 54);
+            this.button2.Size = new System.Drawing.Size(184, 54);
             this.button2.TabIndex = 6;
             this.button2.Text = "Перейти к заказу";
             this.button2.UseVisualStyleBackColor = false;
@@ -131,10 +137,11 @@ namespace WindowsFormsApp1
             // 
             this.button4.BackColor = System.Drawing.Color.White;
             this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button4.Location = new System.Drawing.Point(559, 381);
+            this.button4.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button4.Location = new System.Drawing.Point(569, 377);
             this.button4.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(88, 43);
+            this.button4.Size = new System.Drawing.Size(134, 43);
             this.button4.TabIndex = 7;
             this.button4.Text = "Сохранить";
             this.button4.UseVisualStyleBackColor = false;
@@ -162,7 +169,7 @@ namespace WindowsFormsApp1
             this.MinimizeBox = false;
             this.Name = "checkorder";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "к";
+            this.Text = "Просмотр заказов";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
