@@ -1,13 +1,8 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
 using System.Windows.Forms;
 using Word = Microsoft.Office.Interop.Word;
 
@@ -16,6 +11,8 @@ namespace WindowsFormsApp1
     public partial class checkorder : Form
     {
         private bool allowClose = false;
+        private const int ROLE_ADMIN = 1;
+        private const int ROLE_MANAGER = 3;
 
         public checkorder()
         {
@@ -26,77 +23,15 @@ namespace WindowsFormsApp1
             SetupAccess();
             dataGridView1.SelectionChanged += dataGridView1_SelectionChanged;
             button1.Enabled = false;
-            dataGridView1.CellFormatting += dataGridView1_CellFormatting;
             dataGridView1.DefaultCellStyle.SelectionBackColor = ColorTranslator.FromHtml("#CCE6FF");
             dataGridView1.CellClick += dataGridView1_CellClick;
-
         }
+
         private void checkorder_Activated(object sender, EventArgs e)
         {
             dataGridView1.ClearSelection();
         }
-        private void dataGridView1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-        {
-            if (e.Value == null || e.RowIndex < 0)
-                return;
 
-            string columnName = dataGridView1.Columns[e.ColumnIndex].Name;
-
-            // Пропускаем скрытые служебные столбцы
-            if (columnName == "id" || columnName == "status_id")
-                return;
-
-            // Маскируем все видимые столбцы
-            string original = e.Value.ToString();
-            if (!string.IsNullOrEmpty(original))
-            {
-                e.Value = MaskValue(columnName, original);
-                e.FormattingApplied = true;
-            }
-        }
-
-        private string MaskValue(string columnName, string value)
-        {
-            if (string.IsNullOrEmpty(value))
-                return value;
-
-            switch (columnName)
-            {
-                case "ФИО":
-                    // "Иванов Иван Иванович" → "И****** И*** И*******"
-                    string[] parts = value.Split(' ');
-                    for (int i = 0; i < parts.Length; i++)
-                    {
-                        if (parts[i].Length > 1)
-                            parts[i] = parts[i][0] + new string('*', parts[i].Length - 1);
-                    }
-                    return string.Join(" ", parts);
-
-                case "Телефон":
-                    // "+79991234567" → "+7***###**67"
-                    if (value.Length >= 4)
-                        return value.Substring(0, 2) + new string('*', value.Length - 4) + value.Substring(value.Length - 2);
-                    return new string('*', value.Length);
-
-                case "Адрес":
-                    // "ул. Ленина, д.5" → "ул******* ***5"
-                    if (value.Length > 3)
-                        return value.Substring(0, 2) + new string('*', value.Length - 3) + value[value.Length - 1];
-                    return new string('*', value.Length);
-
-                case "Сумма":
-                    return value;
-                case "Дата":
-                    return value;
-
-                case "Статус":
-                    // Статус оставляем видимым (он не персональные данные)
-                    return value;
-
-                default:
-                    return new string('*', value.Length);
-            }
-        }
         private void dataGridView1_SelectionChanged(object sender, EventArgs e)
         {
             if (dataGridView1.SelectedRows.Count == 0)
@@ -106,25 +41,28 @@ namespace WindowsFormsApp1
             }
 
             int statusId = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["status_id"].Value);
-            button1.Enabled = (statusId == 1);
+
+            // 🔥 ПЕЧАТЬ ТОЛЬКО ДЛЯ МЕНЕДЖЕРА И ТОЛЬКО ЕСЛИ СТАТУС 3
+            button1.Enabled = (Session.CurrentRole == ROLE_MANAGER && statusId == 3);
         }
 
         private void SetupAccess()
         {
-            if (Session.CurrentRole == 1)
+            if (Session.CurrentRole == ROLE_ADMIN)
             {
+                // ✅ Админ — видит всё, меняет статусы
                 comboBox1.Visible = true;
                 button4.Visible = true;
                 label5.Visible = true;
-                button1.Visible = false; // администратор тоже может печатать чеки
+                button1.Visible = false;
             }
-            // Менеджер (id=3) - видит только кнопку печати чека
-            else if (Session.CurrentRole == 3)
+            else if (Session.CurrentRole == ROLE_MANAGER)
             {
+                // ✅ Менеджер — видит всё, печатает чеки
+                comboBox1.Visible = true;
+                button4.Visible = true;
+                label5.Visible = true;
                 button1.Visible = true;
-                comboBox1.Visible = false;
-                button4.Visible = false;
-                label5.Visible = false;
             }
         }
 
@@ -135,14 +73,15 @@ namespace WindowsFormsApp1
                 string query = @"
                 SELECT 
                     o.id,
-                    o.customer_name AS 'ФИО',
-                    o.phone AS 'Телефон',
-                    o.address AS 'Адрес',
+                    c.name AS 'ФИО',
+                    c.phone AS 'Телефон',
+                    c.address AS 'Адрес',
                     o.final_total AS 'Сумма',
                     o.order_date AS 'Дата',
                     o.status_id,
                     s.name AS 'Статус'
                 FROM orders o
+                LEFT JOIN customers c ON o.customer_id = c.id
                 LEFT JOIN order_statuses s ON o.status_id = s.id
                 ORDER BY o.order_date DESC";
 
@@ -156,6 +95,7 @@ namespace WindowsFormsApp1
                     dataGridView1.DataSource = dt;
                     dataGridView1.Columns["id"].Visible = false;
                     dataGridView1.Columns["status_id"].Visible = false;
+
                     dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                     dataGridView1.MultiSelect = false;
                     dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
@@ -175,9 +115,7 @@ namespace WindowsFormsApp1
                 {
                     conn.Open();
                     MySqlDataAdapter da = new MySqlDataAdapter(
-                        "SELECT id, name FROM order_statuses WHERE is_deleted = 0",
-                        conn
-                    );
+                        "SELECT id, name FROM order_statuses", conn);
 
                     DataTable dt = new DataTable();
                     da.Fill(dt);
@@ -221,6 +159,7 @@ namespace WindowsFormsApp1
                 using (MySqlConnection conn = DbConfig.GetConnection())
                 {
                     conn.Open();
+
                     MySqlCommand cmd = new MySqlCommand(
                         "UPDATE orders SET status_id=@s WHERE id=@id", conn);
 
@@ -230,6 +169,22 @@ namespace WindowsFormsApp1
                 }
 
                 MessageBox.Show("Статус обновлён");
+
+                if (statusId == 3 && Session.CurrentRole == ROLE_MANAGER)
+                {
+                    DialogResult result = MessageBox.Show(
+                        "Заказ завершён. Распечатать чек?",
+                        "Печать",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question
+                    );
+
+                    if (result == DialogResult.Yes)
+                    {
+                        button1_Click(null, null);
+                    }
+                }
+
                 LoadOrders();
             }
             catch (Exception ex)
@@ -254,17 +209,14 @@ namespace WindowsFormsApp1
                 {
                     conn.Open();
 
-                    // 🔹 Заказ + статус
                     string orderQuery = @"
                     SELECT 
-                        o.customer_name,
-                        o.phone,
-                        o.total,
-                        o.discount,
-                        o.final_total,
+                        c.name, c.phone,
+                        o.total, o.discount, o.final_total,
                         o.order_date,
                         s.name AS status_name
                     FROM orders o
+                    LEFT JOIN customers c ON o.customer_id = c.id
                     LEFT JOIN order_statuses s ON o.status_id = s.id
                     WHERE o.id = @id";
 
@@ -279,7 +231,7 @@ namespace WindowsFormsApp1
                     {
                         if (r.Read())
                         {
-                            customer = r["customer_name"].ToString();
+                            customer = r["name"].ToString();
                             phone = r["phone"].ToString();
                             total = Convert.ToDecimal(r["total"]);
                             discount = Convert.ToDecimal(r["discount"]);
@@ -289,7 +241,6 @@ namespace WindowsFormsApp1
                         }
                     }
 
-                    // 🔹 ФИО сотрудника
                     string employeeName = "";
                     MySqlCommand empCmd = new MySqlCommand(
                         "SELECT full_name FROM users WHERE login=@l", conn);
@@ -297,51 +248,54 @@ namespace WindowsFormsApp1
                     object emp = empCmd.ExecuteScalar();
                     if (emp != null) employeeName = emp.ToString();
 
-                    // 🔹 Товары
-                    MySqlDataAdapter da = new MySqlDataAdapter(
-                        "SELECT product_name, price, quantity, sum FROM order_items WHERE order_id=@id", conn);
+                    MySqlDataAdapter da = new MySqlDataAdapter(@"
+                        SELECT 
+                            p.name AS product_name,
+                            oi.price, oi.quantity, oi.sum
+                        FROM order_items oi
+                        LEFT JOIN products p ON oi.product_id = p.id
+                        WHERE oi.order_id=@id", conn);
                     da.SelectCommand.Parameters.AddWithValue("@id", orderId);
 
                     DataTable items = new DataTable();
                     da.Fill(items);
 
-                    // 🔹 Word
                     Word.Application word = new Word.Application();
                     Word.Document doc = word.Documents.Add();
                     word.Visible = true;
 
-                    AddLine(doc, "ЧЕК ЗАКАЗА", 16, true, Word.WdParagraphAlignment.wdAlignParagraphCenter);
-                    AddLine(doc, $"Дата чека: {DateTime.Now}");
-                    AddLine(doc, $"Дата заказа: {orderDate}");
+                    doc.PageSetup.LeftMargin = 20;
+                    doc.PageSetup.RightMargin = 20;
+
+                    AddLine(doc, "SUSHI", 14, true, Word.WdParagraphAlignment.wdAlignParagraphCenter);
+                    AddLine(doc, "ул. Примерная 10", 10, false, Word.WdParagraphAlignment.wdAlignParagraphCenter);
+                    AddLine(doc, "----------------------------");
+                    AddLine(doc, $"Дата: {orderDate}");
                     AddLine(doc, $"Статус: {status}");
                     AddLine(doc, $"Клиент: {customer}");
                     AddLine(doc, $"Телефон: {phone}");
-                    AddLine(doc, $"Сотрудник: {employeeName}");
-                    AddLine(doc, "");
+                    AddLine(doc, $"Кассир: {employeeName}");
+                    AddLine(doc, "----------------------------");
 
-                    Word.Table table = doc.Tables.Add(doc.Bookmarks["\\endofdoc"].Range,
-                        items.Rows.Count + 1, 4);
-                    table.Borders.Enable = 1;
-
-                    table.Cell(1, 1).Range.Text = "Товар";
-                    table.Cell(1, 2).Range.Text = "Цена";
-                    table.Cell(1, 3).Range.Text = "Кол-во";
-                    table.Cell(1, 4).Range.Text = "Сумма";
-
-                    for (int i = 0; i < items.Rows.Count; i++)
+                    foreach (DataRow r in items.Rows)
                     {
-                        table.Cell(i + 2, 1).Range.Text = items.Rows[i]["product_name"].ToString();
-                        table.Cell(i + 2, 2).Range.Text = items.Rows[i]["price"].ToString();
-                        table.Cell(i + 2, 3).Range.Text = items.Rows[i]["quantity"].ToString();
-                        table.Cell(i + 2, 4).Range.Text = items.Rows[i]["sum"].ToString();
+                        string name = r["product_name"].ToString();
+                        decimal price = Convert.ToDecimal(r["price"]);
+                        int qty = Convert.ToInt32(r["quantity"]);
+                        decimal sum = Convert.ToDecimal(r["sum"]);
+
+                        AddLine(doc, name);
+                        AddLine(doc, $"   {qty} x {price:0.00}        {sum:0.00}");
                     }
 
-                    AddLine(doc, "");
-                    AddLine(doc, $"Сумма без скидки: {total} ₽");
-                    AddLine(doc, $"Скидка: {discount} ₽");
-                    AddLine(doc, $"ИТОГ: {finalTotal} ₽", 14, true);
+                    AddLine(doc, "----------------------------");
+                    AddLine(doc, $"СУММА:   {total:0.00} ₽");
+                    AddLine(doc, $"СКИДКА:  {discount:0.00} ₽");
+                    AddLine(doc, $"ИТОГ:    {finalTotal:0.00} ₽", 12, true);
+                    AddLine(doc, "----------------------------");
+                    AddLine(doc, "СПАСИБО ЗА ПОКУПКУ", 12, true,
+                        Word.WdParagraphAlignment.wdAlignParagraphCenter);
                 }
-
             }
             catch (Exception ex)
             {
@@ -361,14 +315,38 @@ namespace WindowsFormsApp1
             p.Range.InsertParagraphAfter();
         }
 
-        protected override void OnFormClosing(FormClosingEventArgs e)
+        private void button3_Click(object sender, EventArgs e)
         {
-            if (!allowClose && e.CloseReason == CloseReason.UserClosing)
+            Form mainForm;
+
+            switch (Session.CurrentRole)
             {
-                e.Cancel = true;
-                return;
+                case 1: mainForm = new mainadmin(); break;
+                case 3: mainForm = new mainmanag(); break;
+                default:
+                    MessageBox.Show("Доступ запрещён", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
             }
-            base.OnFormClosing(e);
+
+            for (double opacity = 1.0; opacity > 0; opacity -= 0.24)
+            {
+                this.Opacity = opacity;
+                Application.DoEvents();
+                System.Threading.Thread.Sleep(7);
+            }
+
+            mainForm.Opacity = 0;
+            mainForm.Show();
+
+            for (double opacity = 0; opacity <= 1.0; opacity += 0.24)
+            {
+                mainForm.Opacity = opacity;
+                Application.DoEvents();
+                System.Threading.Thread.Sleep(7);
+            }
+            allowClose = true;
+            this.Hide();
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -388,46 +366,5 @@ namespace WindowsFormsApp1
             f.Show();
             this.Close();
         }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            Form mainForm;
-
-            switch (Session.CurrentRole)
-            {
-                case 1: // администратор
-                    mainForm = new mainadmin();
-                    break;
-                case 2: // директор
-                    mainForm = new maindir();
-                    break;
-                case 3: // менеджер
-                    mainForm = new mainmanag();
-                    break;
-                default:
-                    MessageBox.Show("Неизвестная роль пользователя", "Ошибка",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-            }
-            for (double opacity = 1.0; opacity > 0; opacity -= 0.24) // было 0.05
-            {
-                this.Opacity = opacity;
-                Application.DoEvents();
-                System.Threading.Thread.Sleep(7); // было 20
-            }
-
-            mainForm.Opacity = 0;
-            mainForm.Show();
-            // Быстрое появление - 0.4 секунды
-            for (double opacity = 0; opacity <= 1.0; opacity += 0.24) // было 0.05
-            {
-                mainForm.Opacity = opacity;
-                Application.DoEvents();
-                System.Threading.Thread.Sleep(7); // было 20
-            }
-            allowClose = true;
-            this.Hide();
-        }
-
     }
 }

@@ -44,6 +44,7 @@ namespace WindowsFormsApp1
             LoadMenu();
             RestoreUiState();
         }
+
         private void textBox2_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (char.IsControl(e.KeyChar))
@@ -110,7 +111,7 @@ namespace WindowsFormsApp1
         {
             try
             {
-                string query = @"SELECT p.id, p.article, p.name, p.description, p.price, c.name AS category_name, c.is_deleted AS category_deleted, p.image_path, p.is_deleted FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.is_deleted = 0";
+                string query = @"SELECT p.id, p.article, p.name, p.description, p.price, c.name AS category_name, p.image_path FROM products p LEFT JOIN categories c ON p.category_id = c.id";
 
 
                 using (MySqlConnection conn = DbConfig.GetConnection())
@@ -146,10 +147,6 @@ namespace WindowsFormsApp1
             if (dataGridView1.Columns.Contains("description")) dataGridView1.Columns["description"].HeaderText = "Описание";
             if (dataGridView1.Columns.Contains("price")) dataGridView1.Columns["price"].HeaderText = "Цена";
             if (dataGridView1.Columns.Contains("category_name")) dataGridView1.Columns["category_name"].HeaderText = "Категория";
-            if (dataGridView1.Columns.Contains("category_deleted"))
-                dataGridView1.Columns["category_deleted"].Visible = false;
-            if (dataGridView1.Columns.Contains("is_deleted"))
-                dataGridView1.Columns["is_deleted"].Visible = false;
             if (dataGridView1.Columns.Contains("image_path"))
                 dataGridView1.Columns["image_path"].Visible = false;
         }
@@ -282,85 +279,196 @@ namespace WindowsFormsApp1
 
         private void button3_Click(object sender, EventArgs e)
         {
-            // Проверка заполненности данных клиента
-            if (string.IsNullOrWhiteSpace(textBox2.Text) ||
-                !maskedTextBox2.MaskCompleted ||
-                string.IsNullOrWhiteSpace(textBox4.Text))
-            {
-                MessageBox.Show("Заполните все данные клиента");
-                return;
-            }
-
-            // Проверка, что корзина не пустая
             if (cartTable.Rows.Count == 0)
             {
                 MessageBox.Show("Корзина пуста");
                 return;
             }
 
-            try
+            if (string.IsNullOrWhiteSpace(textBox2.Text) ||
+    !maskedTextBox2.MaskCompleted ||
+    string.IsNullOrWhiteSpace(textBox4.Text))
             {
+                MessageBox.Show("Заполните данные клиента");
+                return;
+            }
+
+            try
+
+            {
+
                 using (MySqlConnection conn = DbConfig.GetConnection())
+
                 {
+
                     conn.Open();
-                    using (MySqlTransaction transaction = conn.BeginTransaction())
+
+                    using (MySqlTransaction tr = conn.BeginTransaction())
+
                     {
-                        string insertOrder = @" INSERT INTO orders (customer_name, phone, address, total, discount, final_total, order_date, status_id) VALUES (@name, @phone, @address, @total, @discount, @final, @date, @status); SELECT LAST_INSERT_ID();";
+
+                        // 1. СОЗДАЁМ ИЛИ БЕРЁМ КЛИЕНТА
+
+                        long customerId;
+                        {
+
+                            string findCustomer = @"SELECT id FROM customers WHERE phone = @phone LIMIT 1";
+
+                            using (MySqlCommand cmd = new MySqlCommand(findCustomer, conn, tr))
+
+                            {
+
+                                cmd.Parameters.AddWithValue("@phone", maskedTextBox2.Text);
+
+                                object res = cmd.ExecuteScalar();
+
+                                if (res != null)
+
+                                {
+
+                                    customerId = Convert.ToInt64(res);
+
+                                }
+
+                                else
+
+                                {
+
+                                    string insertCustomer = @"INSERT INTO customers(name, phone, address)
+
+                                                 VALUES(@name, @phone, @address);
+
+                                                 SELECT LAST_INSERT_ID();";
+
+                                    using (MySqlCommand cmd2 = new MySqlCommand(insertCustomer, conn, tr))
+
+                                    {
+
+                                        cmd2.Parameters.AddWithValue("@name", textBox2.Text);
+
+                                        cmd2.Parameters.AddWithValue("@phone", maskedTextBox2.Text);
+
+                                        cmd2.Parameters.AddWithValue("@address", textBox4.Text);
+
+                                        customerId = Convert.ToInt64(cmd2.ExecuteScalar());
+
+                                    }
+
+                                }
+                            }
+
+                        }
+
+                        // 2. СЧИТАЕМ ИТОГИ
 
                         decimal total = cartTable.Rows.Cast<DataRow>().Sum(r => (decimal)r["sum"]);
+
                         decimal discount = total >= 3500 ? total * 0.15m : 0;
-                        decimal finalTotal = total - discount;
 
-                        using (MySqlCommand cmdOrder = new MySqlCommand(insertOrder, conn, transaction))
+                        decimal final = total - discount;
+
+                        // 3. СОЗДАЁМ ЗАКАЗ (ПРАВИЛЬНО)
+
+                        string insertOrder = @"
+
+                INSERT INTO orders(customer_id, order_date, status_id, total, discount, final_total)
+
+                VALUES(@cid, @date, @status, @total, @discount, @final);
+
+                SELECT LAST_INSERT_ID();";
+
+                        long orderId;
+
+                        using (MySqlCommand cmd = new MySqlCommand(insertOrder, conn, tr))
+
                         {
-                            cmdOrder.Parameters.AddWithValue("@name", textBox2.Text);
-                            cmdOrder.Parameters.AddWithValue("@phone", maskedTextBox2.Text);
-                            cmdOrder.Parameters.AddWithValue("@address", textBox4.Text);
-                            cmdOrder.Parameters.AddWithValue("@total", total);
-                            cmdOrder.Parameters.AddWithValue("@discount", discount);
-                            cmdOrder.Parameters.AddWithValue("@final", finalTotal);
-                            cmdOrder.Parameters.AddWithValue("@date", dateTimePicker1.Value);
-                            cmdOrder.Parameters.AddWithValue("@status", 2);
 
-                            currentOrderId = Convert.ToInt64(cmdOrder.ExecuteScalar());
+                            cmd.Parameters.AddWithValue("@cid", customerId);
+
+                            cmd.Parameters.AddWithValue("@date", dateTimePicker1.Value);
+
+                            cmd.Parameters.AddWithValue("@status", 3);
+
+                            cmd.Parameters.AddWithValue("@total", total);
+
+                            cmd.Parameters.AddWithValue("@discount", discount);
+
+                            cmd.Parameters.AddWithValue("@final", final);
+
+                            orderId = Convert.ToInt64(cmd.ExecuteScalar());
+
                         }
+
+                        // 4. ТОВАРЫ (ВАЖНО: product_id, а не name)
 
                         foreach (DataRow row in cartTable.Rows)
-                        {
-                            string insertItem = @"INSERT INTO order_items (order_id, product_name, price, quantity, sum) VALUES (@order_id, @name, @price, @qty, @sum);";
 
-                            using (MySqlCommand cmdItem = new MySqlCommand(insertItem, conn, transaction))
+                        {
+
+                            // ищем product_id
+
+                            string getProduct = "SELECT id FROM products WHERE name = @name LIMIT 1";
+
+                            long productId;
+
+                            using (MySqlCommand cmd = new MySqlCommand(getProduct, conn, tr))
+
                             {
-                                cmdItem.Parameters.AddWithValue("@order_id", currentOrderId);
-                                cmdItem.Parameters.AddWithValue("@name", row["name"]);
-                                cmdItem.Parameters.AddWithValue("@price", row["price"]);
-                                cmdItem.Parameters.AddWithValue("@qty", row["qty"]);
-                                cmdItem.Parameters.AddWithValue("@sum", row["sum"]);
-                                cmdItem.ExecuteNonQuery();
+
+                                cmd.Parameters.AddWithValue("@name", row["name"]);
+
+                                productId = Convert.ToInt64(cmd.ExecuteScalar());
+
                             }
+
+                            string insertItem = @"
+
+                    INSERT INTO order_items(order_id, product_id, price, quantity, sum)
+
+                    VALUES(@oid, @pid, @price, @qty, @sum);";
+
+                            using (MySqlCommand cmd = new MySqlCommand(insertItem, conn, tr))
+
+                            {
+
+                                cmd.Parameters.AddWithValue("@oid", orderId);
+
+                                cmd.Parameters.AddWithValue("@pid", productId);
+
+                                cmd.Parameters.AddWithValue("@price", row["price"]);
+
+                                cmd.Parameters.AddWithValue("@qty", row["qty"]);
+
+                                cmd.Parameters.AddWithValue("@sum", row["sum"]);
+
+                                cmd.ExecuteNonQuery();
+
+                            }
+
                         }
 
-                        transaction.Commit();
+                        tr.Commit();
+
+                        currentOrderId = orderId;
+
+                        Class2.OrderCreated = true;
+
                     }
+
                 }
 
+                button3.Enabled = false;
                 button4.Enabled = true;
-                button1.Enabled = false;
-                button2.Enabled = false;
-                Class2.OrderCreated = true;   // <-- важно
-                button3.Enabled = false; 
-                button6.Enabled = false;
-                numericUpDown1.Enabled = false;
-                textBox2.Enabled = false;          // <-- блокируем поля клиента
-                maskedTextBox2.Enabled = false;
-                textBox4.Enabled = false;
-                SaveUiState();
+                MessageBox.Show("Заказ оформлен успешно");
 
-                MessageBox.Show("Заказ оформлен");
             }
+
             catch (Exception ex)
+
             {
-                MessageBox.Show("Ошибка при сохранении заказа: " + ex.Message);
+
+                MessageBox.Show("Ошибка: " + ex.Message);
+
             }
         }
 
@@ -460,9 +568,25 @@ namespace WindowsFormsApp1
             button6.Visible = false;
             numericUpDown1.Value = numericUpDown1.Minimum;
 
-            string searchText = textBox1.Text.Trim().Replace("'", "''"); // экранируем апострофы
+            // 1. убираем английские буквы
+            string cleaned = new string(textBox1.Text
+                .Where(c => !(c >= 'A' && c <= 'Z') && !(c >= 'a' && c <= 'z'))
+                .ToArray())
+                .Trim();
 
-            // Создаем фильтр для колонки "name" (название)
+            // 2. первая буква заглавная
+            if (cleaned.Length > 0)
+                cleaned = char.ToUpper(cleaned[0]) + cleaned.Substring(1).ToLower();
+
+            textBox1.TextChanged -= textBox1_TextChanged;
+            textBox1.Text = cleaned;
+            textBox1.SelectionStart = cleaned.Length;
+            textBox1.TextChanged += textBox1_TextChanged;
+
+            // 3. экранируем апостроф
+            string searchText = cleaned.Replace("'", "''");
+
+            // 4. фильтр
             DataView dv = menuTable.DefaultView;
             dv.RowFilter = $"name LIKE '%{searchText}%'";
 
@@ -561,5 +685,6 @@ namespace WindowsFormsApp1
                 tb.SelectionStart = Math.Min(cursorPos, tb.Text.Length);
             }
         }
+
     }
 }

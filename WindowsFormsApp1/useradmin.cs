@@ -4,6 +4,7 @@ using System;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
@@ -403,6 +404,60 @@ namespace WindowsFormsApp1
                 return;
             }
             base.OnFormClosing(e);
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            string allowed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+            string result = "";
+
+            foreach (char c in textBox1.Text)
+            {
+                if (allowed.Contains(c))
+                {
+                    result += c;
+                }
+            }
+
+            if (textBox1.Text != result)
+            {
+                int pos = textBox1.SelectionStart - 1;
+
+                textBox1.Text = result;
+
+                if (pos < 0)
+                    pos = 0;
+
+                textBox1.SelectionStart = pos;
+            }
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+            string allowed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+            string result = "";
+
+            foreach (char c in textBox2.Text)
+            {
+                if (allowed.Contains(c))
+                {
+                    result += c;
+                }
+            }
+
+            if (textBox2.Text != result)
+            {
+                int pos = textBox2.SelectionStart - 1;
+
+                textBox2.Text = result;
+
+                if (pos < 0)
+                    pos = 0;
+
+                textBox2.SelectionStart = pos;
+            }
         }
     }
 }

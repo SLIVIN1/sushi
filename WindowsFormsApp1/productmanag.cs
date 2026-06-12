@@ -79,8 +79,7 @@ namespace WindowsFormsApp1
             string columnName = dataGridView1.Columns[e.ColumnIndex].Name;
 
             // Исключаем колонки, по которым не нужно сортировать
-            if (columnName == "image_col" || columnName == "id" || columnName == "image_path" ||
-                columnName == "is_deleted" || columnName == "category_deleted")
+            if (columnName == "image_col" || columnName == "id" || columnName == "image_path")
                 return;
 
             // Определяем направление сортировки
@@ -105,7 +104,7 @@ namespace WindowsFormsApp1
                 using (MySqlConnection conn = DbConfig.GetConnection())
                 {
                     conn.Open();
-                    string sql = "SELECT id, name FROM categories WHERE is_deleted = 0";
+                    string sql = "SELECT id, name FROM categories ";
                     MySqlDataAdapter da = new MySqlDataAdapter(sql, conn);
                     DataTable dt = new DataTable();
                     da.Fill(dt);
@@ -136,11 +135,10 @@ namespace WindowsFormsApp1
                 {
                     conn.Open();
                     string sql = @"SELECT p.id, p.article, p.name, p.description, p.price, 
-                                  c.name AS category_name, c.is_deleted AS category_deleted, 
-                                  p.image_path, p.is_deleted 
-                                  FROM products p 
-                                  LEFT JOIN categories c ON p.category_id = c.id 
-                                  WHERE p.is_deleted = 0";
+                                  c.name AS category_name, 
+                                  p.image_path
+                                  FROM products p
+                                  LEFT JOIN categories c ON p.category_id = c.id";
 
                     MySqlDataAdapter da = new MySqlDataAdapter(sql, conn);
                     DataTable dt = new DataTable();
@@ -192,10 +190,6 @@ namespace WindowsFormsApp1
                 dataGridView1.Columns["category_name"].HeaderText = "Категория";
                 dataGridView1.Columns["category_name"].SortMode = DataGridViewColumnSortMode.Programmatic;
             }
-            if (dataGridView1.Columns.Contains("category_deleted"))
-                dataGridView1.Columns["category_deleted"].Visible = false;
-            if (dataGridView1.Columns.Contains("is_deleted"))
-                dataGridView1.Columns["is_deleted"].Visible = false;
             if (dataGridView1.Columns.Contains("image_path"))
                 dataGridView1.Columns["image_path"].Visible = false;
             if (dataGridView1.Columns.Contains("id"))
@@ -214,21 +208,6 @@ namespace WindowsFormsApp1
             }
 
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-
-            // Подсветка удаленных категорий
-            foreach (DataGridViewRow row in dataGridView1.Rows)
-            {
-                if (row.IsNewRow) continue;
-
-                if (row.Cells["category_deleted"] != null &&
-                    row.Cells["category_deleted"].Value != null &&
-                    row.Cells["category_deleted"].Value != DBNull.Value &&
-                    Convert.ToInt32(row.Cells["category_deleted"].Value) == 1)
-                {
-                    row.DefaultCellStyle.BackColor = Color.FromArgb(255, 200, 87);
-                    row.DefaultCellStyle.Font = new Font(dataGridView1.Font, FontStyle.Italic);
-                }
-            }
         }
 
         private void LoadImagesToGrid()
@@ -569,9 +548,6 @@ namespace WindowsFormsApp1
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            // Этот метод больше не используется напрямую для фильтрации,
-            // так как мы используем TextBoxSearch_TextChanged
-            // Но оставляем логику форматирования текста
             TextBox tb = (TextBox)sender;
             if (string.IsNullOrWhiteSpace(tb.Text)) return;
 
@@ -580,19 +556,30 @@ namespace WindowsFormsApp1
 
             for (int i = 0; i < chars.Length; i++)
             {
-                if (!char.IsLetter(chars[i]) && chars[i] != ' ') // Запрет цифр и символов
-                    chars[i] = '\0';
+                char c = chars[i];
 
-                if (char.IsLetter(chars[i]))
+                // русские буквы + цифры + пробел
+                if (!((c >= 'А' && c <= 'я') ||
+                      c == 'ё' || c == 'Ё' ||
+                      char.IsDigit(c) ||
+                      c == ' '))
+                {
+                    chars[i] = '\0';
+                    continue;
+                }
+
+                // регистр
+                if ((c >= 'А' && c <= 'я') || c == 'ё' || c == 'Ё')
                 {
                     if (i == 0)
-                        chars[i] = char.ToUpper(chars[i]); // Заглавная первая буква
+                        chars[i] = char.ToUpper(c);
                     else
-                        chars[i] = char.ToLower(chars[i]);
+                        chars[i] = char.ToLower(c);
                 }
             }
 
             string newText = new string(chars).Replace("\0", "");
+
             if (tb.Text != newText)
             {
                 tb.Text = newText;

@@ -26,47 +26,66 @@ namespace WindowsFormsApp1
         private void LoadOrder()
         {
             try
+
             {
+
                 string query = @"
-                SELECT
-                    oi.product_name AS 'Товар',
-                    oi.quantity     AS 'Количество',
-                    oi.price        AS 'Цена',
-                    oi.sum          AS 'Сумма',
-                    o.order_date    AS 'Дата заказа',
-                    o.customer_name AS 'ФИО',
-                   o.address       AS 'Адрес',
-            o.phone         AS 'Телефон'
-                FROM order_items oi
-                JOIN orders o ON oi.order_id = o.id
-                WHERE o.id = @orderId";
+
+        SELECT
+    o.order_date  AS 'Дата заказа',
+    c.name        AS 'ФИО',
+    c.phone       AS 'Номер',
+    c.address     AS 'Адрес',
+    p.name        AS 'Товар',
+    oi.price      AS 'Цена',
+    oi.quantity   AS 'Кол-во',
+    oi.sum        AS 'Сумма'
+FROM order_items oi
+JOIN orders o ON oi.order_id = o.id
+JOIN customers c ON o.customer_id = c.id
+JOIN products p ON oi.product_id = p.id
+WHERE o.id = @orderId";
 
                 using (MySqlConnection conn = DbConfig.GetConnection())
+
                 {
+
                     conn.Open();
 
                     MySqlCommand cmd = new MySqlCommand(query, conn);
+
                     cmd.Parameters.AddWithValue("@orderId", orderId);
 
                     MySqlDataAdapter da = new MySqlDataAdapter(cmd);
+
                     DataTable table = new DataTable();
+
                     da.Fill(table);
 
                     dataGridView1.DataSource = table;
 
                     dataGridView1.ReadOnly = true;
+
                     dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+
                     dataGridView1.MultiSelect = false;
+
                     dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
                     dataGridView1.RowTemplate.Height = 40;
 
-                    // 🔹 считаем суммы
                     CalculateTotals(table);
+
                 }
+
             }
+
             catch (Exception ex)
+
             {
+
                 MessageBox.Show("Ошибка загрузки заказа: " + ex.Message);
+
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
@@ -11,20 +12,21 @@ namespace WindowsFormsApp1
     {
         DataTable ordersTable = new DataTable();
         private bool allowClose = false;
+
         public director()
         {
             InitializeComponent();
-            InitializeDateTimePickers(); // <-- обязательно!
+            InitializeDateTimePickers();
             InitializeComboBoxes();
             SetupDataGridView();
             this.Activated += director_Activated;
-            // Восстановление состояния фильтров
+
             dateTimePicker1.Value = DirectorState.DateFrom;
             dateTimePicker2.Value = DirectorState.DateTo;
             textBox1.Text = DirectorState.OrderId;
             comboBox1.SelectedIndex = DirectorState.StatusIndex;
             comboBox2.SelectedIndex = DirectorState.SortIndex;
-            // Применяем фильтры сразу после восстановления состояния
+
             ApplyFilters();
         }
 
@@ -32,6 +34,7 @@ namespace WindowsFormsApp1
         {
             dataGridView1.ClearSelection();
         }
+
         private void InitializeDateTimePickers()
         {
             dateTimePicker1.Value = DateTime.Today;
@@ -47,22 +50,17 @@ namespace WindowsFormsApp1
 
         private void InitializeComboBoxes()
         {
-            // Заполняем ComboBox для фильтрации по статусам
             comboBox1.Items.Add("Все статусы");
             comboBox1.SelectedIndex = 0;
             LoadStatuses();
 
-            // Заполняем ComboBox для сортировки
             comboBox2.Items.Add("По убыванию цены");
             comboBox2.Items.Add("По возрастанию цены");
             comboBox2.SelectedIndex = 0;
 
-            // Обработчики событий
             comboBox1.SelectedIndexChanged += (s, e) => ApplyFilters();
             comboBox2.SelectedIndexChanged += (s, e) => ApplyFilters();
         }
-
-        
 
         private void LoadStatuses()
         {
@@ -71,7 +69,7 @@ namespace WindowsFormsApp1
                 using (MySqlConnection conn = DbConfig.GetConnection())
                 {
                     conn.Open();
-                    string sql = "SELECT id, name FROM order_statuses WHERE is_deleted = 0 ORDER BY name";
+                    string sql = "SELECT id, name FROM order_statuses ORDER BY name";
                     MySqlCommand cmd = new MySqlCommand(sql, conn);
 
                     using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -111,7 +109,6 @@ namespace WindowsFormsApp1
         {
             dateTimePicker2.MinDate = dateTimePicker1.Value.Date;
 
-            // если вдруг уже выбрана некорректная дата — исправляем
             if (dateTimePicker2.Value.Date < dateTimePicker1.Value.Date)
             {
                 dateTimePicker2.Value = dateTimePicker1.Value.Date;
@@ -132,12 +129,12 @@ namespace WindowsFormsApp1
                 statusFilter = "AND s.name = @status";
             }
 
-            string orderBy = "o.order_date DESC"; // сортировка по умолчанию
-            if (comboBox2.SelectedIndex == 0) // По убыванию цены
+            string orderBy = "o.order_date DESC";
+            if (comboBox2.SelectedIndex == 0)
             {
                 orderBy = "o.final_total DESC";
             }
-            else if (comboBox2.SelectedIndex == 1) // По возрастанию цены
+            else if (comboBox2.SelectedIndex == 1)
             {
                 orderBy = "o.final_total ASC";
             }
@@ -145,7 +142,7 @@ namespace WindowsFormsApp1
             string searchFilter = "";
             if (!string.IsNullOrWhiteSpace(textBox1.Text))
             {
-                searchFilter = "AND o.id LIKE @orderId"; // live search
+                searchFilter = "AND c.name LIKE @client";
             }
 
             try
@@ -154,22 +151,26 @@ namespace WindowsFormsApp1
                 {
                     conn.Open();
 
+                    // 🔥 ИСПРАВЛЕНО: добавлены колонки total, discount, final_total
                     string sql = $@"
-                SELECT
-                    o.id            AS 'ID',
-                    o.customer_name AS 'Клиент',
-                    o.phone         AS 'Телефон',
-                    o.total         AS 'Сумма без скидки',
-                    o.discount      AS 'Скидка ₽',
-                    o.final_total   AS 'Итого',
-                    s.name          AS 'Статус',
-                    o.order_date    AS 'Дата заказа'
-                FROM orders o
-                LEFT JOIN order_statuses s ON o.status_id = s.id
-                WHERE o.order_date >= @from AND o.order_date < @to
-                {statusFilter}
-                {searchFilter}
-                ORDER BY {orderBy}";
+SELECT
+    o.id AS 'ID',
+    o.order_date AS 'Дата заказа',
+    c.name AS 'Клиент',
+    c.phone AS 'Телефон',
+    c.address AS 'Адрес',
+    o.total AS 'Сумма без скидки',
+    o.discount AS 'Скидка ₽',
+    o.final_total AS 'Итого',
+    s.name AS 'Статус'
+FROM orders o
+JOIN customers c ON o.customer_id = c.id
+JOIN order_statuses s ON o.status_id = s.id
+WHERE o.order_date >= @from 
+  AND o.order_date < @to
+  {statusFilter}
+  {searchFilter}
+ORDER BY {orderBy}";
 
                     MySqlCommand cmd = new MySqlCommand(sql, conn);
                     cmd.Parameters.AddWithValue("@from", dateFrom);
@@ -182,7 +183,7 @@ namespace WindowsFormsApp1
 
                     if (!string.IsNullOrWhiteSpace(textBox1.Text))
                     {
-                        cmd.Parameters.AddWithValue("@orderId", "%" + textBox1.Text + "%");
+                        cmd.Parameters.AddWithValue("@client", "%" + textBox1.Text + "%");
                     }
 
                     MySqlDataAdapter da = new MySqlDataAdapter(cmd);
@@ -191,12 +192,7 @@ namespace WindowsFormsApp1
 
                     dataGridView1.DataSource = ordersTable;
                     dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-
-                    // 🔹 теперь ID виден
-                    if (dataGridView1.Columns.Contains("ID"))
-                    {
-                        dataGridView1.Columns["ID"].Visible = true;
-                    }
+                    dataGridView1.Columns["ID"].Visible = false;
                 }
             }
             catch (Exception ex)
@@ -204,8 +200,6 @@ namespace WindowsFormsApp1
                 MessageBox.Show("Ошибка загрузки заказов:\n" + ex.Message);
             }
         }
-
-      
 
         private void button3_Click(object sender, EventArgs e)
         {
@@ -231,7 +225,6 @@ namespace WindowsFormsApp1
             this.Hide();
         }
 
-        // ================== ЗАГРУЗКА ЗАКАЗОВ ==================
         private void LoadOrders()
         {
             ApplyFilters();
@@ -246,14 +239,9 @@ namespace WindowsFormsApp1
             int lastDataRow = headerRow + dataRowCount;
 
             Excel.Range rng = ws.Range[ws.Cells[firstDataRow, colIndex], ws.Cells[lastDataRow, colIndex]];
-
-            // 1) Сначала делаем ячейки числовыми (если вдруг пришли строки)
             rng.Value2 = rng.Value2;
-
-            // 2) Самый совместимый формат (без "₽")
             rng.NumberFormat = "#,##0.00";
         }
-
 
         // ================== EXCEL ==================
         private void button1_Click(object sender, EventArgs e)
@@ -269,14 +257,14 @@ namespace WindowsFormsApp1
             decimal discountSum = 0;
             decimal finalSum = 0;
 
+            // 🔥 Безопасное чтение с проверкой наличия колонок
             foreach (DataRow row in ordersTable.Rows)
             {
-                totalSum += Convert.ToDecimal(row["Сумма без скидки"]);
-                discountSum += Convert.ToDecimal(row["Скидка ₽"]);
-                finalSum += Convert.ToDecimal(row["Итого"]);
+                totalSum += GetDecimalSafe(row, "Сумма без скидки");
+                discountSum += GetDecimalSafe(row, "Скидка ₽");
+                finalSum += GetDecimalSafe(row, "Итого");
             }
 
-            // 🔹 ФИО сотрудника
             string employeeName = "Неизвестно";
             using (MySqlConnection conn = DbConfig.GetConnection())
             {
@@ -296,7 +284,7 @@ namespace WindowsFormsApp1
             xlApp.Visible = true;
 
             // ===== ЗАГОЛОВОК =====
-            ws.Range["A1", "H1"].Merge(); // Теперь 8 колонок (ID добавился)
+            ws.Range["A1", "I1"].Merge();
             ws.Cells[1, 1] = "ОТЧЁТ ПО ЗАКАЗАМ";
             ws.Cells[1, 1].Font.Bold = true;
             ws.Cells[1, 1].Font.Size = 16;
@@ -311,7 +299,6 @@ namespace WindowsFormsApp1
             ws.Cells[5, 1] = "Период:";
             ws.Cells[5, 2] = $"с {dateTimePicker1.Value:dd.MM.yyyy} по {dateTimePicker2.Value:dd.MM.yyyy}";
 
-            // Добавляем информацию о фильтрах
             int currentRow = 6;
             if (comboBox1.SelectedIndex > 0)
             {
@@ -378,9 +365,28 @@ namespace WindowsFormsApp1
 
             ws.Cells[итогRow + 3, 1] = "ИТОГО:";
             ws.Cells[итогRow + 3, 2] = finalSum;
+            ws.Cells[итогRow + 3, 1].Font.Bold = true;
+            ws.Cells[итогRow + 3, 2].Font.Bold = true;
 
-            Excel.Range итог = ws.Range[ws.Cells[итогRow + 1, 2], ws.Cells[итогRow + 3, 2]];
-            итог.NumberFormat = "#,##0.00";
+            // 🔥 Форматируем денежные ячейки в рублях
+            Excel.Range moneyRange = ws.Range[ws.Cells[итогRow + 1, 2], ws.Cells[итогRow + 3, 2]];
+            moneyRange.NumberFormat = "#,##0.00\" ₽\"";  // ← формат с символом рубля
+
+        }
+
+        // 🔥 Безопасное чтение decimal из DataRow
+        private decimal GetDecimalSafe(DataRow row, string columnName)
+        {
+            try
+            {
+                if (!row.Table.Columns.Contains(columnName)) return 0;
+                if (row[columnName] == null || row[columnName] == DBNull.Value) return 0;
+                return Convert.ToDecimal(row[columnName]);
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -392,15 +398,17 @@ namespace WindowsFormsApp1
             }
             base.OnFormClosing(e);
         }
+
         private void SetupDataGridView()
         {
-            dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect; // выделяем всю строку
-            dataGridView1.MultiSelect = false; // только одна строка
-            dataGridView1.ReadOnly = true; // запрет редактирования
+            dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridView1.MultiSelect = false;
+            dataGridView1.ReadOnly = true;
             dataGridView1.AllowUserToAddRows = false;
             dataGridView1.AllowUserToDeleteRows = false;
-            dataGridView1.RowHeadersVisible = false; // скрыть левый столбец с номерами
+            dataGridView1.RowHeadersVisible = false;
         }
+
         private void button2_Click(object sender, EventArgs e)
         {
             if (dataGridView1.SelectedRows.Count == 0)
@@ -411,11 +419,11 @@ namespace WindowsFormsApp1
 
             if (dataGridView1.SelectedRows[0].Cells["ID"].Value != null)
             {
-                long orderId = Convert.ToInt64(dataGridView1.SelectedRows[0].Cells["ID"].Value);
-
+                long orderId = Convert.ToInt64(
+                    dataGridView1.SelectedRows[0].Cells["ID"].Value
+                );
                 podrobno f = new podrobno(orderId);
 
-                // ===== Сохраняем фильтры перед закрытием =====
                 DirectorState.DateFrom = dateTimePicker1.Value;
                 DirectorState.DateTo = dateTimePicker2.Value;
                 DirectorState.OrderId = textBox1.Text;
@@ -424,7 +432,7 @@ namespace WindowsFormsApp1
 
                 allowClose = true;
                 f.Show();
-                this.Close(); // теперь закрываем
+                this.Close();
             }
             else
             {
@@ -432,15 +440,12 @@ namespace WindowsFormsApp1
             }
         }
 
-        // ================== КНОПКА СБРОСА ФИЛЬТРОВ ==================
         private void button4_Click_1(object sender, EventArgs e)
         {
-            // Сброс всех фильтров
             comboBox1.SelectedIndex = 0;
             comboBox2.SelectedIndex = 0;
             textBox1.Text = "";
 
-            // Возврат к стандартным датам
             dateTimePicker1.Value = DateTime.Today;
             dateTimePicker2.Value = DateTime.Today;
 
@@ -449,19 +454,40 @@ namespace WindowsFormsApp1
 
         private void textBox1_TextChanged_1(object sender, EventArgs e)
         {
-            int cursor = textBox1.SelectionStart;
+            TextBox tb = (TextBox)sender;
+            int cursor = tb.SelectionStart;
 
-            // Оставляем только цифры
-            string cleaned = new string(textBox1.Text.Where(char.IsDigit).ToArray());
-            if (textBox1.Text != cleaned)
+            string cleaned = new string(tb.Text
+                .Where(c => (c >= 'А' && c <= 'я') || c == 'ё' || c == 'Ё' || c == ' ')
+                .ToArray());
+
+            char[] chars = cleaned.ToLower().ToCharArray();
+            bool newWord = true;
+
+            for (int i = 0; i < chars.Length; i++)
             {
-                textBox1.Text = cleaned;
-                textBox1.SelectionStart = Math.Min(cursor, textBox1.Text.Length);
+                char c = chars[i];
+
+                if (c == ' ')
+                {
+                    newWord = true;
+                    continue;
+                }
+
+                if (newWord && ((c >= 'а' && c <= 'я') || c == 'ё'))
+                {
+                    chars[i] = char.ToUpper(c);
+                    newWord = false;
+                }
+                else
+                {
+                    newWord = false;
+                }
             }
 
-            // Вызываем ApplyFilters вместо прямого изменения RowFilter
+            tb.Text = new string(chars);
+            tb.SelectionStart = Math.Min(cursor, tb.Text.Length);
             ApplyFilters();
         }
     }
-    
 }

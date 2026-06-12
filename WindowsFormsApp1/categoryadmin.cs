@@ -23,7 +23,6 @@ namespace WindowsFormsApp1
             dataGridView1.CellClick += dataGridView1_CellClick;
             textBox1.TextChanged += textBox1_TextChanged;
             dataGridView1.DefaultCellStyle.SelectionBackColor = ColorTranslator.FromHtml("#CCE6FF");
-            dataGridView1.DataBindingComplete += dataGridView1_DataBindingComplete;
 
         }
 
@@ -35,7 +34,7 @@ namespace WindowsFormsApp1
         // Загрузка категорий
         private void LoadCategories()
         {
-            string query = "SELECT id, name, is_deleted FROM categories";
+            string query = "SELECT id, name FROM categories";
             using (MySqlConnection connection = DbConfig.GetConnection())
             {
                 MySqlDataAdapter da = new MySqlDataAdapter(query, connection);
@@ -46,37 +45,12 @@ namespace WindowsFormsApp1
                 dataGridView1.MultiSelect = false;
 
                 dataGridView1.Columns["id"].Visible = false;
-                dataGridView1.Columns["is_deleted"].Visible = false;
                 dataGridView1.Columns["name"].HeaderText = "Категория";
             }
 
             dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridView1.MultiSelect = false;
 
-        }
-
-        private void dataGridView1_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
-        {
-            foreach (DataGridViewRow row in dataGridView1.Rows)
-            {
-                bool isDeleted = Convert.ToInt32(row.Cells["is_deleted"].Value) == 1;
-
-                if (isDeleted)
-                {
-                    row.DefaultCellStyle.BackColor = Color.FromArgb(255, 200, 87); // светло-серый
-                    row.DefaultCellStyle.Font = new Font(
-                        dataGridView1.Font,
-                        FontStyle.Italic
-                    );
-                }
-                else
-                {
-                    // 🔄 сброс для активных
-                    row.DefaultCellStyle.BackColor = dataGridView1.DefaultCellStyle.BackColor;
-                    row.DefaultCellStyle.ForeColor = dataGridView1.DefaultCellStyle.ForeColor;
-                    row.DefaultCellStyle.Font = dataGridView1.Font;
-                }
-            }
         }
 
         // Выбор категории
@@ -87,17 +61,6 @@ namespace WindowsFormsApp1
             DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
             currentCategoryId = Convert.ToInt32(row.Cells["id"].Value);
             textBox1.Text = row.Cells["name"].Value.ToString();
-            bool isDeleted = Convert.ToInt32(row.Cells["is_deleted"].Value) == 1;
-
-            if (isDeleted)
-            {
-                MessageBox.Show(
-                    "Категория удалена и доступна только для восстановления",
-                    "Архив",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information
-                );
-            }
         }
 
         private void ClearFields()
@@ -134,37 +97,11 @@ namespace WindowsFormsApp1
             {
                 conn.Open();
                 MySqlCommand cmd = new MySqlCommand(
-                    "SELECT COUNT(*) FROM categories WHERE name = @name AND is_deleted = 0",
+                    "SELECT COUNT(*) FROM categories WHERE name = @name",
                     conn);
 
                 cmd.Parameters.AddWithValue("@name", name);
                 return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
-            }
-        }
-        private bool IsDeletedCategoryExists(string name)
-        {
-            using (MySqlConnection conn = DbConfig.GetConnection())
-            {
-                conn.Open();
-                MySqlCommand cmd = new MySqlCommand(
-                    "SELECT COUNT(*) FROM categories WHERE name = @name AND is_deleted = 1",
-                    conn);
-
-                cmd.Parameters.AddWithValue("@name", name);
-                return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
-            }
-        }
-        private void RestoreCategory(string name)
-        {
-            using (MySqlConnection conn = DbConfig.GetConnection())
-            {
-                conn.Open();
-                MySqlCommand cmd = new MySqlCommand(
-                    "UPDATE categories SET is_deleted = 0 WHERE name = @name",
-                    conn);
-
-                cmd.Parameters.AddWithValue("@name", name);
-                cmd.ExecuteNonQuery();
             }
         }
 
@@ -189,25 +126,12 @@ namespace WindowsFormsApp1
                     return;
                 }
 
-                // ♻️ существует, но удалена → восстанавливаем
-                if (IsDeletedCategoryExists(name))
-                {
-                    RestoreCategory(name);
-
-                    MessageBox.Show("Категория восстановлена", "Успех",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                    LoadCategories();
-                    ClearFields();
-                    return;
-                }
-
                 // ➕ новой ещё не было — создаём
                 using (MySqlConnection connection = DbConfig.GetConnection())
                 {
                     connection.Open();
                     MySqlCommand cmd = new MySqlCommand(
-                        "INSERT INTO categories (name, is_deleted) VALUES (@name, 0)",
+                        "INSERT INTO categories (name) VALUES (@name)",
                         connection);
 
                     cmd.Parameters.AddWithValue("@name", name);
@@ -232,11 +156,6 @@ namespace WindowsFormsApp1
             {
                 MessageBox.Show("Выберите категорию для изменения", "Ошибка",
                                 MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-            if (Convert.ToInt32(dataGridView1.CurrentRow.Cells["is_deleted"].Value) == 1)
-            {
-                MessageBox.Show("Нельзя редактировать удалённую категорию");
                 return;
             }
 
@@ -280,31 +199,58 @@ namespace WindowsFormsApp1
                 return;
             }
 
-            var result = MessageBox.Show(
-                "Категория будет скрыта, но сохранится в истории заказов. Продолжить?",
-                "Подтверждение",
+            if (CategoryHasProducts(currentCategoryId))
+            {
+                MessageBox.Show(
+                    "Нельзя удалить категорию, так как в ней есть товары.",
+                    "Ошибка",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+
+                return;
+            }
+
+            DialogResult result = MessageBox.Show(
+                "Удалить категорию без возможности восстановления?",
+                "Подтверждение удаления",
                 MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question
-            );
+                MessageBoxIcon.Question);
 
             if (result != DialogResult.Yes)
                 return;
 
-            using (MySqlConnection connection = DbConfig.GetConnection())
+            try
             {
-                connection.Open();
+                using (MySqlConnection connection = DbConfig.GetConnection())
+                {
+                    connection.Open();
 
-                MySqlCommand cmd = new MySqlCommand(
-                    "UPDATE categories SET is_deleted = 1 WHERE id = @id",
-                    connection
-                );
-                cmd.Parameters.AddWithValue("@id", currentCategoryId);
-                cmd.ExecuteNonQuery();
+                    string query = "DELETE FROM categories WHERE id = @id";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", currentCategoryId);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                MessageBox.Show(
+                    "Категория успешно удалена",
+                    "Успех",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+
+                LoadCategories();
+                ClearFields();
             }
-
-            MessageBox.Show("Категория успешно удалена");
-            LoadCategories();
-            ClearFields();
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Ошибка удаления: " + ex.Message,
+                    "Ошибка",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -340,6 +286,49 @@ namespace WindowsFormsApp1
                 return;
             }
             base.OnFormClosing(e);
+        }
+        private bool CategoryHasProducts(int categoryId)
+        {
+            using (MySqlConnection conn = DbConfig.GetConnection())
+            {
+                conn.Open();
+
+                string query = @"
+            SELECT COUNT(*)
+            FROM products
+            WHERE category_id = @id";
+
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", categoryId);
+                    return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                }
+            }
+        }
+        private void textBox1_TextChanged_1(object sender, EventArgs e)
+        {
+            string result = "";
+
+            foreach (char c in textBox1.Text)
+            {
+                // Разрешаем только русские буквы
+                if ((c >= 'А' && c <= 'я') || c == 'ё' || c == 'Ё')
+                {
+                    result += c;
+                }
+            }
+
+            if (textBox1.Text != result)
+            {
+                int pos = textBox1.SelectionStart - 1;
+
+                textBox1.Text = result;
+
+                if (pos < 0)
+                    pos = 0;
+
+                textBox1.SelectionStart = pos;
+            }
         }
     }
 

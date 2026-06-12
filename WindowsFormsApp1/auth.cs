@@ -11,6 +11,7 @@ namespace WindowsFormsApp1
     public partial class A : Form
     {
         // ====== НАСТРОЙКИ ======
+
         int failedAttempts = 0;
         private bool isLoggingIn = false;
         bool captchaRequired = false;
@@ -24,7 +25,7 @@ namespace WindowsFormsApp1
             InitializeComponent();
             captchas = new CaptchaItem[]
             {
-                new CaptchaItem { Picture = pictureBox2, Answer = "A7B0" },
+                new CaptchaItem { Picture = pictureBox2, Answer = "A780" },
                 new CaptchaItem { Picture = pictureBox3, Answer = "B73j" },
                 new CaptchaItem { Picture = pictureBox4, Answer = "L4Y5" }
             };
@@ -40,6 +41,11 @@ namespace WindowsFormsApp1
         {
             txtLogin.Focus();
             txtPassword.UseSystemPasswordChar = true;
+            pictureBox2.Visible = false;
+            pictureBox3.Visible = false;
+            pictureBox4.Visible = false;
+            textBox1.Visible = false;
+            button3.Visible = false;
             InactivityManager.Stop();
             HideCaptcha();
             SetLoginControlsEnabled(true);
@@ -137,9 +143,23 @@ namespace WindowsFormsApp1
                     BlockForm();
                 }
             }
+            catch (MySqlException)
+            {
+                MessageBox.Show(
+                    "Проблема с подключением к БД.\nПроверьте соединение.",
+                    "Ошибка подключения",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка подключения к БД:\n" + ex.Message);
+                MessageBox.Show(
+                    "Произошла ошибка:\n" + ex.Message,
+                    "Ошибка",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
             }
             finally
             {
@@ -157,8 +177,18 @@ namespace WindowsFormsApp1
 
             captchas[captchaIndex].Picture.Visible = true;
 
+            // Показываем элементы капчи
             textBox1.Visible = true;
             button3.Visible = true;
+
+            // Скрываем форму входа
+            txtLogin.Visible = false;
+            txtPassword.Visible = false;
+            ButtonShowPassword.Visible = false;
+            button1.Visible = false;
+            label1.Visible = false;
+            label2.Visible = false;
+
             textBox1.Clear();
             textBox1.Focus();
         }
@@ -170,6 +200,14 @@ namespace WindowsFormsApp1
 
             textBox1.Visible = false;
             button3.Visible = false;
+
+            // Возвращаем форму входа
+            txtLogin.Visible = true;
+            txtPassword.Visible = true;
+            ButtonShowPassword.Visible = true;
+            button1.Visible = true;
+            label1.Visible = true;
+            label2.Visible = true;
         }
 
         private void NextCaptcha()
@@ -316,8 +354,6 @@ namespace WindowsFormsApp1
 
         private void button4_Click(object sender, EventArgs e)
         {
-            AuthState.LoginText = txtLogin.Text;
-            AuthState.PasswordText = txtPassword.Text;
             setting nastroika = new setting();
             for (double opacity = 1.0; opacity > 0; opacity -= 0.24) // было 0.05
             {
@@ -339,6 +375,83 @@ namespace WindowsFormsApp1
             this.Hide();
         }
 
-      
+        private void txtLogin_TextChanged(object sender, EventArgs e)
+        {
+            string result = "";
+
+            foreach (char c in txtLogin.Text)
+            {
+                // Запрещаем русские буквы
+                if (!(c >= 'А' && c <= 'я') && c != 'ё' && c != 'Ё')
+                {
+                    result += c;
+                }
+            }
+
+            if (txtLogin.Text != result)
+            {
+                int pos = txtLogin.SelectionStart - 1;
+
+                txtLogin.Text = result;
+
+                if (pos < 0)
+                    pos = 0;
+
+                txtLogin.SelectionStart = pos;
+            }
+        }
+
+        private void txtPassword_TextChanged(object sender, EventArgs e)
+        {
+            string result = "";
+
+            foreach (char c in txtPassword.Text)
+            {
+                // Запрещаем русские буквы
+                if (!(c >= 'А' && c <= 'я') && c != 'ё' && c != 'Ё')
+                {
+                    result += c;
+                }
+            }
+
+            if (txtPassword.Text != result)
+            {
+                int pos = txtPassword.SelectionStart - 1;
+
+                txtPassword.Text = result;
+
+                if (pos < 0)
+                    pos = 0;
+
+                txtPassword.SelectionStart = pos;
+            }
+        }
+
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            string result = "";
+
+            foreach (char c in textBox1.Text)
+            {
+                // Запрещаем русские буквы
+                if (!(c >= 'А' && c <= 'я') && c != 'ё' && c != 'Ё')
+                {
+                    result += c;
+                }
+            }
+
+            if (textBox1.Text != result)
+            {
+                int pos = textBox1.SelectionStart - 1;
+
+                textBox1.Text = result;
+
+                if (pos < 0)
+                    pos = 0;
+
+                textBox1.SelectionStart = pos;
+            }
+        }
     }
 }

@@ -51,9 +51,10 @@ namespace WindowsFormsApp1
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(15, 9);
+            this.label1.Location = new System.Drawing.Point(18, 10);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(102, 13);
+            this.label1.Size = new System.Drawing.Size(118, 15);
             this.label1.TabIndex = 0;
             this.label1.Text = "Просмотр товаров";
             // 
@@ -66,47 +67,52 @@ namespace WindowsFormsApp1
             this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridView1.BackgroundColor = System.Drawing.Color.White;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(12, 25);
+            this.dataGridView1.Location = new System.Drawing.Point(14, 29);
+            this.dataGridView1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
             this.dataGridView1.RowHeadersVisible = false;
-            this.dataGridView1.Size = new System.Drawing.Size(508, 279);
+            this.dataGridView1.Size = new System.Drawing.Size(593, 322);
             this.dataGridView1.TabIndex = 1;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(379, 335);
+            this.label2.Location = new System.Drawing.Point(442, 387);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(141, 13);
+            this.label2.Size = new System.Drawing.Size(161, 15);
             this.label2.TabIndex = 2;
             this.label2.Text = "Фильтрация по категории";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(9, 335);
+            this.label3.Location = new System.Drawing.Point(10, 387);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(107, 13);
+            this.label3.Size = new System.Drawing.Size(119, 15);
             this.label3.TabIndex = 2;
             this.label3.Text = "Поиск по названию";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(221, 335);
+            this.label4.Location = new System.Drawing.Point(258, 387);
+            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(109, 13);
+            this.label4.Size = new System.Drawing.Size(125, 15);
             this.label4.TabIndex = 2;
             this.label4.Text = "Сортировка по цене";
             // 
             // button1
             // 
-            this.button1.BackColor = System.Drawing.Color.White;
+            this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button1.Location = new System.Drawing.Point(120, 405);
+            this.button1.Location = new System.Drawing.Point(140, 467);
+            this.button1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(128, 33);
+            this.button1.Size = new System.Drawing.Size(149, 38);
             this.button1.TabIndex = 3;
             this.button1.Text = "Сбросить фильтр";
             this.button1.UseVisualStyleBackColor = false;
@@ -116,9 +122,10 @@ namespace WindowsFormsApp1
             // 
             this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(76)))), ((int)(((byte)(60)))));
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button2.Location = new System.Drawing.Point(436, 405);
+            this.button2.Location = new System.Drawing.Point(509, 467);
+            this.button2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(92, 37);
+            this.button2.Size = new System.Drawing.Size(107, 43);
             this.button2.TabIndex = 3;
             this.button2.Text = "назад";
             this.button2.UseVisualStyleBackColor = false;
@@ -129,18 +136,20 @@ namespace WindowsFormsApp1
             this.comboBox1.BackColor = System.Drawing.Color.White;
             this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(379, 365);
+            this.comboBox1.Location = new System.Drawing.Point(442, 421);
+            this.comboBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(121, 21);
+            this.comboBox1.Size = new System.Drawing.Size(140, 23);
             this.comboBox1.TabIndex = 4;
             // 
             // textBox1
             // 
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBox1.Location = new System.Drawing.Point(12, 365);
+            this.textBox1.Location = new System.Drawing.Point(14, 421);
+            this.textBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.textBox1.MaxLength = 20;
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(159, 20);
+            this.textBox1.Size = new System.Drawing.Size(185, 21);
             this.textBox1.TabIndex = 5;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
@@ -149,41 +158,46 @@ namespace WindowsFormsApp1
             this.comboBox2.BackColor = System.Drawing.Color.White;
             this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(224, 365);
+            this.comboBox2.Location = new System.Drawing.Point(261, 421);
+            this.comboBox2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(121, 21);
+            this.comboBox2.Size = new System.Drawing.Size(140, 23);
             this.comboBox2.TabIndex = 6;
             // 
             // flowLayoutPanelPages
             // 
-            this.flowLayoutPanelPages.Location = new System.Drawing.Point(371, 309);
+            this.flowLayoutPanelPages.Location = new System.Drawing.Point(433, 357);
+            this.flowLayoutPanelPages.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.flowLayoutPanelPages.Name = "flowLayoutPanelPages";
-            this.flowLayoutPanelPages.Size = new System.Drawing.Size(129, 23);
+            this.flowLayoutPanelPages.Size = new System.Drawing.Size(150, 27);
             this.flowLayoutPanelPages.TabIndex = 39;
             // 
             // labelPageInfo
             // 
             this.labelPageInfo.AutoSize = true;
-            this.labelPageInfo.Location = new System.Drawing.Point(-197, 269);
+            this.labelPageInfo.Location = new System.Drawing.Point(-230, 310);
+            this.labelPageInfo.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelPageInfo.Name = "labelPageInfo";
-            this.labelPageInfo.Size = new System.Drawing.Size(35, 13);
+            this.labelPageInfo.Size = new System.Drawing.Size(41, 15);
             this.labelPageInfo.TabIndex = 38;
             this.labelPageInfo.Text = "label7";
             // 
             // buttonNext
             // 
-            this.buttonNext.Location = new System.Drawing.Point(329, 309);
+            this.buttonNext.Location = new System.Drawing.Point(384, 357);
+            this.buttonNext.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.buttonNext.Name = "buttonNext";
-            this.buttonNext.Size = new System.Drawing.Size(34, 23);
+            this.buttonNext.Size = new System.Drawing.Size(40, 27);
             this.buttonNext.TabIndex = 37;
             this.buttonNext.Text = "→";
             this.buttonNext.UseVisualStyleBackColor = true;
             // 
             // buttonPrev
             // 
-            this.buttonPrev.Location = new System.Drawing.Point(293, 309);
+            this.buttonPrev.Location = new System.Drawing.Point(342, 357);
+            this.buttonPrev.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.buttonPrev.Name = "buttonPrev";
-            this.buttonPrev.Size = new System.Drawing.Size(30, 23);
+            this.buttonPrev.Size = new System.Drawing.Size(35, 27);
             this.buttonPrev.TabIndex = 36;
             this.buttonPrev.Text = "←";
             this.buttonPrev.UseVisualStyleBackColor = true;
@@ -191,18 +205,19 @@ namespace WindowsFormsApp1
             // labelPage
             // 
             this.labelPage.AutoSize = true;
-            this.labelPage.Location = new System.Drawing.Point(15, 314);
+            this.labelPage.Location = new System.Drawing.Point(18, 362);
+            this.labelPage.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelPage.Name = "labelPage";
-            this.labelPage.Size = new System.Drawing.Size(35, 13);
+            this.labelPage.Size = new System.Drawing.Size(41, 15);
             this.labelPage.TabIndex = 40;
             this.labelPage.Text = "label7";
             // 
             // productmanag
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(244)))), ((int)(((byte)(245)))));
-            this.ClientSize = new System.Drawing.Size(540, 450);
+            this.ClientSize = new System.Drawing.Size(630, 519);
             this.Controls.Add(this.labelPage);
             this.Controls.Add(this.flowLayoutPanelPages);
             this.Controls.Add(this.labelPageInfo);
@@ -218,8 +233,10 @@ namespace WindowsFormsApp1
             this.Controls.Add(this.label2);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.label1);
+            this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "productmanag";
