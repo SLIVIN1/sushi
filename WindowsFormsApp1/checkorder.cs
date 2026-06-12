@@ -42,8 +42,6 @@ namespace WindowsFormsApp1
             }
 
             int statusId = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["status_id"].Value);
-
-            // 🔥 ПЕЧАТЬ ТОЛЬКО ДЛЯ МЕНЕДЖЕРА И ТОЛЬКО ЕСЛИ СТАТУС 3
             button1.Enabled = (Session.CurrentRole == ROLE_MANAGER && statusId == 3);
         }
 
@@ -51,7 +49,6 @@ namespace WindowsFormsApp1
         {
             if (Session.CurrentRole == ROLE_ADMIN)
             {
-                // ✅ Админ — видит всё, меняет статусы
                 comboBox1.Visible = true;
                 button4.Visible = true;
                 label5.Visible = true;
@@ -59,7 +56,6 @@ namespace WindowsFormsApp1
             }
             else if (Session.CurrentRole == ROLE_MANAGER)
             {
-                // ✅ Менеджер — видит всё, печатает чеки
                 comboBox1.Visible = true;
                 button4.Visible = true;
                 label5.Visible = true;
@@ -171,6 +167,7 @@ namespace WindowsFormsApp1
 
                 MessageBox.Show("Статус обновлён");
 
+                // 🔥 Если статус стал "завершён" (3) — спрашиваем про печать
                 if (statusId == 3 && Session.CurrentRole == ROLE_MANAGER)
                 {
                     DialogResult result = MessageBox.Show(
@@ -182,7 +179,8 @@ namespace WindowsFormsApp1
 
                     if (result == DialogResult.Yes)
                     {
-                        button1_Click(null, null);
+                        // 🔥 ПЕРЕДАЁМ orderId НАПРЯМУЮ — не зависим от SelectedRows
+                        PrintOrderReceipt(orderId);
                     }
                 }
 
@@ -194,6 +192,7 @@ namespace WindowsFormsApp1
             }
         }
 
+        // ===================== КНОПКА ПЕЧАТИ (ручной вызов) =====================
         private void button1_Click(object sender, EventArgs e)
         {
             if (dataGridView1.SelectedRows.Count == 0)
@@ -203,7 +202,12 @@ namespace WindowsFormsApp1
             }
 
             long orderId = Convert.ToInt64(dataGridView1.SelectedRows[0].Cells["id"].Value);
+            PrintOrderReceipt(orderId);
+        }
 
+        // ===================== МЕТОД ПЕЧАТИ (принимает orderId) =====================
+        private void PrintOrderReceipt(long orderId)
+        {
             try
             {
                 using (MySqlConnection conn = DbConfig.GetConnection())
@@ -300,7 +304,7 @@ namespace WindowsFormsApp1
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка: " + ex.Message);
+                MessageBox.Show("Ошибка печати: " + ex.Message);
             }
         }
 
