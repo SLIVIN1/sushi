@@ -205,8 +205,8 @@ namespace WindowsFormsApp1
             decimal discount = total >= 3500 ? total * 0.15m : 0;
             decimal final = total - discount;
 
-            label9.Text = $"Сумма: {total} ₽";
-            label12.Text = $"Итого: {final} ₽";
+            label9.Text = $"Сумма: {total:F2} ₽";
+            label12.Text = $"Итого: {final:F2} ₽";
         }
 
 
